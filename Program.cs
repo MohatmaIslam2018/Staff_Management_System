@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+using System.Collections.Generic;
 
 namespace Staff_Management_System
 {
@@ -39,9 +39,9 @@ namespace Staff_Management_System
 
         public string displayStaffDetails()
         {
-            return this.staffFirstName + " " + this.staffLastName + ", " +
-                this.phoneNumber + ", " + this.emailAddress +
-                this.address + ", " + this.gender +
+            return this.staffFirstName + ", " + this.staffLastName + ", " +
+                this.phoneNumber + ", " + this.emailAddress + ", " +
+                this.address + ", " + this.gender + ", " +
                 this.age + ", " + this.NInumber + "\n";
         }
 
@@ -83,6 +83,7 @@ namespace Staff_Management_System
             string username;
             string password;
 
+            List<staff> staffListObjects = new List<staff>();
 
             string loginDetailsFileName = "loginDetails.txt";
 
@@ -109,9 +110,6 @@ namespace Staff_Management_System
                 Console.WriteLine("\nPlease login to continue...\n");
 
 
-                Console.Write("Enter you age: ");
-                int age1 = int.Parse(Console.ReadLine());
-
                 Console.Write("Enter username: ");
                 username = Console.ReadLine();
 
@@ -119,7 +117,7 @@ namespace Staff_Management_System
                 password = Console.ReadLine();
 
 
-                if(username == usernameFromFile && password == passwordFromFile)
+                if (username == usernameFromFile && password == passwordFromFile)
                 {
                     Console.WriteLine("Access granted!");
 
@@ -131,20 +129,20 @@ namespace Staff_Management_System
                         staff newStaffMember = new staff();
 
 
-                        Console.WriteLine("\n1. Create new Stuff Detail");
-                        Console.WriteLine("2. View all Stuffs Details");
-                        Console.WriteLine("3. Assign Stuff to Shifts");
-                        Console.WriteLine("4. View all Stuff shifts");
-                        Console.WriteLine("5. View Stuff Payments");
-                        Console.WriteLine("6. Delete stuff Records");
-                        Console.WriteLine("7. Export stuff details");
+                        Console.WriteLine("\n1. Create new Staff Detail");
+                        Console.WriteLine("2. View all Staffs Details");
+                        Console.WriteLine("3. Assign Staff to Shifts");
+                        Console.WriteLine("4. View all Staff shifts");
+                        Console.WriteLine("5. View Staff Payments");
+                        Console.WriteLine("6. Update Staff Record");
+                        Console.WriteLine("7. Delete stuff Record");
                         Console.WriteLine("8. Exit Program!");
 
                         Console.Write("\nEnter option: ");
                         option = int.Parse(Console.ReadLine());
 
                         //use robust function for this purpose
-                        while(option < 0 || option > 8)
+                        while(option < 0 || option > 9)
                         {
                             Console.WriteLine("Wrong Input! ");
 
@@ -167,6 +165,7 @@ namespace Staff_Management_System
                                 Console.Write("Enter last Name: ");
                                 lastName = Console.ReadLine();
                                 
+                                ////// PHONE NUMBER VALIDATION
                                 Console.Write("Enter Phone Number: ");
                                 phoneNumber = Console.ReadLine();
 
@@ -185,7 +184,7 @@ namespace Staff_Management_System
                                 //    }
                                 //}
 
-
+                                ///////// EMAIL ADDREDSS VALICATION
                                 Console.Write("Enter email address: ");
                                 emailAddress = Console.ReadLine();
 
@@ -203,6 +202,9 @@ namespace Staff_Management_System
                                 Console.Write("Enter age: ");
                                 age = int.Parse(Console.ReadLine());
 
+
+                                ///// Your National Insurance number is 9 digits long and starts
+                                ///with two letters, followed by six numbers and one letter e.g. AB123456C
                                 Console.Write("Enter National Insurance number: ");
                                 NInumber = Console.ReadLine();
 
@@ -227,6 +229,44 @@ namespace Staff_Management_System
                                 break;
 
                             case 2:
+
+                                if (File.Exists("staffDetails.txt"))
+                                {
+                                    string[] staffDetailsFromFile = File.ReadAllLines("staffDetails.txt");
+
+                                    for(int i=0; i<staffDetailsFromFile.Length; i++)
+                                    {
+                                        string staffDetailsSeparator = staffDetailsFromFile[i];
+                                        string[] individualStaffData = staffDetailsSeparator.Split(',');
+
+                                        staff staffObject = new staff();
+
+                                        staffObject.setStaffDetails(individualStaffData[0], individualStaffData[1],
+                                            individualStaffData[2], individualStaffData[3], individualStaffData[4],
+                                            individualStaffData[5], int.Parse(individualStaffData[6]), individualStaffData[7]);
+
+                                        staffListObjects.Add(staffObject);
+
+                                    }
+
+
+                                    
+
+                                    Console.WriteLine();
+
+                                    for (int x = 0; x < staffListObjects.Count; x++)
+                                    {
+
+                                        Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("File does not exists, please check your folder!");
+                                }
                                 break;
 
                             case 3:
