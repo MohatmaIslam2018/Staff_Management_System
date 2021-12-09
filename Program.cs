@@ -6,7 +6,7 @@ namespace Staff_Management_System
 {
     using System;
 
-    class staff
+    class Staff
     {
         private string staffFirstName;
         private string staffLastName;
@@ -17,9 +17,14 @@ namespace Staff_Management_System
         private int age;
         private string NInumber;
 
-        public staff()
+        public Staff()
         {
 
+        }
+
+        public string getName()
+        {
+            return this.staffFirstName;
         }
 
 
@@ -39,10 +44,18 @@ namespace Staff_Management_System
 
         public string displayStaffDetails()
         {
-            return this.staffFirstName + ", " + this.staffLastName + ", " +
-                this.phoneNumber + ", " + this.emailAddress + ", " +
-                this.address + ", " + this.gender + ", " +
-                this.age + ", " + this.NInumber + "\n";
+            return this.staffFirstName + "," + this.staffLastName + "," +
+                this.phoneNumber + ", " + this.emailAddress + "," +
+                this.address + "," + this.gender + "," +
+                this.age + "," + this.NInumber + "\n";
+        }
+
+        public string storeStaffRecordsInFileAfterDeletion()
+        {
+            return this.staffFirstName + "," + this.staffLastName + "," +
+                this.phoneNumber + "," + this.emailAddress + "," +
+                this.address + "," + this.gender + "," +
+                this.age + "," + this.NInumber;
         }
 
 
@@ -73,9 +86,37 @@ namespace Staff_Management_System
 
     }
 
-
+    [Serializable]
     class Program
     {
+        public static List<Staff> staffListObjects = new List<Staff>();
+
+        public static void storeStaffRecordInList()
+        {
+            if (File.Exists("staffDetails.txt")) 
+            {
+                string[] staffDetailsFromFile = File.ReadAllLines("staffDetails.txt");
+
+                //Console.WriteLine("Total Staff Details stored in File: " + staffDetailsFromFile.Length);
+
+                for (int i = 0; i < staffDetailsFromFile.Length; i++)
+                {
+                    string staffDetailsSeparator = staffDetailsFromFile[i];
+                    string[] individualStaffData = staffDetailsSeparator.Split(',');
+
+                    Staff staffObject = new Staff();
+
+                    staffObject.setStaffDetails(individualStaffData[0], individualStaffData[1],
+                        individualStaffData[2], individualStaffData[3], individualStaffData[4],
+                        individualStaffData[5], int.Parse(individualStaffData[6]), individualStaffData[7]);
+
+                    staffListObjects.Add(staffObject);
+                }
+
+            }
+        }
+
+
 
 
         static void Main()
@@ -83,7 +124,9 @@ namespace Staff_Management_System
             string username;
             string password;
 
-            List<staff> staffListObjects = new List<staff>();
+            //Dictionary<staff, staff> staffDictionary = new Dictionary<staff, staff>();
+
+
 
             string loginDetailsFileName = "loginDetails.txt";
 
@@ -96,7 +139,7 @@ namespace Staff_Management_System
                 Validation validation = new Validation();
 
                 string usernameFromFile = readLoginFile.ReadLine();
-      
+
                 Console.WriteLine(usernameFromFile);
 
                 string passwordFromFile = readLoginFile.ReadLine();
@@ -119,22 +162,24 @@ namespace Staff_Management_System
 
                 if (username == usernameFromFile && password == passwordFromFile)
                 {
-                    Console.WriteLine("Access granted!");
+                    Console.WriteLine("\nAccess granted!\n");
 
                     int option = 0;
+
+                    storeStaffRecordInList();
 
 
                     do
                     {
-                        staff newStaffMember = new staff();
+                        Staff newStaffMember = new Staff();
 
 
                         Console.WriteLine("\n1. Create new Staff Detail");
                         Console.WriteLine("2. View all Staffs Details");
                         Console.WriteLine("3. Assign Staff to Shifts");
                         Console.WriteLine("4. View all Staff shifts");
-                        Console.WriteLine("5. View Staff Payments");
-                        Console.WriteLine("6. Update Staff Record");
+                        Console.WriteLine("5. Approved Staff Shifts");
+                        Console.WriteLine("6. View Staff Payments");
                         Console.WriteLine("7. Delete stuff Record");
                         Console.WriteLine("8. Exit Program!");
 
@@ -142,7 +187,7 @@ namespace Staff_Management_System
                         option = int.Parse(Console.ReadLine());
 
                         //use robust function for this purpose
-                        while(option < 0 || option > 9)
+                        while (option < 0 || option > 9)
                         {
                             Console.WriteLine("Wrong Input! ");
 
@@ -156,7 +201,7 @@ namespace Staff_Management_System
                                 phoneNumber, emailAddress, address, gender, NInumber;
 
                                 int age;
-                                
+
                                 Console.WriteLine("\nEnter Staff Details...\n");
 
                                 Console.Write("Enter first Name: ");
@@ -164,7 +209,7 @@ namespace Staff_Management_System
 
                                 Console.Write("Enter last Name: ");
                                 lastName = Console.ReadLine();
-                                
+
                                 ////// PHONE NUMBER VALIDATION
                                 Console.Write("Enter Phone Number: ");
                                 phoneNumber = Console.ReadLine();
@@ -218,39 +263,40 @@ namespace Staff_Management_System
                                 newStaffMember.setStaffDetails(firstName, lastName, phoneNumber,
                                     emailAddress, address, gender, age, NInumber);
 
-                                Console.WriteLine(newStaffMember.displayStaffDetails());
+                                Console.WriteLine("\nNew staff Record has been added!");
+                                Console.WriteLine(newStaffMember.displayStaffDetails() + "\n");
 
                                 File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
 
-                                Console.WriteLine("you are good to go!");
+                                Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
 
+
+                                //Delete the existing staff records from the List
+                                //for (int y=0; y<staffListObjects.Count; y++)
+                                //{
+                                //    staffListObjects.RemoveAt(y);
+                                //}
+
+                                staffListObjects.Clear();
+
+                                Console.WriteLine("\nTotal Records in the List (After Deletion): " + staffListObjects.Count);
+
+                                //Loading the newly added staff records into the staff List
+                                storeStaffRecordInList();
+
+                                Console.WriteLine("\nTotal Records in the List (Reading from file): " + staffListObjects.Count);
+
+
+                                Console.WriteLine("you are good to go!");
 
 
                                 break;
 
                             case 2:
 
-                                if (File.Exists("staffDetails.txt"))
+                                //Displaying all staff records
+                                if (staffListObjects.Count > 0 )
                                 {
-                                    string[] staffDetailsFromFile = File.ReadAllLines("staffDetails.txt");
-
-                                    for(int i=0; i<staffDetailsFromFile.Length; i++)
-                                    {
-                                        string staffDetailsSeparator = staffDetailsFromFile[i];
-                                        string[] individualStaffData = staffDetailsSeparator.Split(',');
-
-                                        staff staffObject = new staff();
-
-                                        staffObject.setStaffDetails(individualStaffData[0], individualStaffData[1],
-                                            individualStaffData[2], individualStaffData[3], individualStaffData[4],
-                                            individualStaffData[5], int.Parse(individualStaffData[6]), individualStaffData[7]);
-
-                                        staffListObjects.Add(staffObject);
-
-                                    }
-
-
-                                    
 
                                     Console.WriteLine();
 
@@ -261,11 +307,10 @@ namespace Staff_Management_System
 
                                     }
 
-
                                 }
                                 else
                                 {
-                                    Console.WriteLine("File does not exists, please check your folder!");
+                                    Console.WriteLine("No Staff Record is found!");
                                 }
                                 break;
 
@@ -282,6 +327,62 @@ namespace Staff_Management_System
                                 break;
 
                             case 7:
+
+                                //Deleting staff Records
+                                Console.WriteLine();
+
+                                int staffObjectIndexNumber = 0;
+                                bool foundStaffObj = false;
+
+
+                                Console.WriteLine("\n*******************\n");
+
+                                Console.Write("Enter staff Name: ");
+                                string identifyStaffName = Console.ReadLine();
+
+                                for (int i = 0; i < staffListObjects.Count; i++)
+                                {
+                                    if (identifyStaffName == staffListObjects[i].getName())
+                                    {
+                                        staffObjectIndexNumber = i;
+                                        foundStaffObj = true;
+                                    }
+                                }
+
+
+                                if (foundStaffObj)
+                                {
+                                    Console.WriteLine(staffListObjects[staffObjectIndexNumber].displayStaffDetails());
+
+                                    staffListObjects.RemoveAt(staffObjectIndexNumber);
+
+                                    Console.WriteLine("Above Staff Record has been deleted! ");
+
+                                    //Overwriting the staff record data since a record has been deleted from Staff List
+
+
+                                    Console.WriteLine("\nOverriding staff records.......\n");
+
+                                    StreamWriter writeToFile = new StreamWriter("staffDetails.txt");
+
+                                    Console.WriteLine("Total Staff Records: " + staffListObjects.Count);
+
+                                    for (int x = 0; x < staffListObjects.Count; x++)
+                                    {
+                                        Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                        writeToFile.WriteLine(staffListObjects[x].storeStaffRecordsInFileAfterDeletion());
+                                    }
+
+                                    writeToFile.Close();
+
+                                }
+
+                                else
+                                {
+                                    Console.WriteLine("Sorry, Staff Record Not found! ");
+                                }
+
                                 break;
 
 
@@ -294,7 +395,6 @@ namespace Staff_Management_System
                 {
                     Console.WriteLine("\nUsername or Password doesn't match, closing program!");
                 }
-
 
             }
             else
