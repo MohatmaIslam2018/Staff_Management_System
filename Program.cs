@@ -93,14 +93,6 @@ namespace Staff_Management_System
                 this.dateOfBirth + "," + this.NInumber + "\n";
         }
 
-        public string storeStaffRecordsInFileAfterDeletion()
-        {
-            return this.staffFirstName + "," + this.staffLastName + "," +
-                this.phoneNumber + "," + this.emailAddress + "," +
-                this.address + "," + this.gender + "," +
-                this.dateOfBirth + "," + this.NInumber;
-        }
-
 
     }
 
@@ -219,472 +211,569 @@ namespace Staff_Management_System
         }
 
 
+        public static int getMaxLoginAttempts(string getInput)
+        {
+            string[] split = getInput.Split(':');
 
+            int maxAttempts = int.Parse(split[1]);
+
+            return maxAttempts;
+
+        }
+
+
+        public static (bool, int) readLoginDetails(string loginDetailsFileName, string userName, string password)
+        {
+
+
+            StreamReader readLoginFile = new StreamReader(loginDetailsFileName);
+
+
+            string usernameFromFile = readLoginFile.ReadLine();
+
+            string passwordFromFile = readLoginFile.ReadLine();
+
+            int storeMaxAttempts = getMaxLoginAttempts(readLoginFile.ReadLine());
+
+            readLoginFile.Close();
+
+            if (usernameFromFile == userName && passwordFromFile == password)
+            {
+                return (true, storeMaxAttempts);
+            }
+
+            return (false, storeMaxAttempts);
+        }
+
+        public static void OverrideOrCreateLoginFile(Validator validator, string loginDetailsFileName)
+        {
+            string updatedUsername = validator.validateStringInput("Enter new username: ");
+            string updatedPassword = validator.validateStringInput("Enter new password: ");
+            int updatedMaximumLoginAttemps = validator.validateIntegerInput("Enter maximum attempts: ");
+
+            StreamWriter updateLoginDetailsToFile = new StreamWriter(loginDetailsFileName);
+
+            updateLoginDetailsToFile.WriteLine(updatedUsername);
+            updateLoginDetailsToFile.WriteLine(updatedPassword);
+            updateLoginDetailsToFile.WriteLine("MaximumLoginAttemps:"+ updatedMaximumLoginAttemps);
+
+
+            updateLoginDetailsToFile.Close();
+
+            Console.WriteLine("\nNew Login Details has been updated successfully!\n");
+
+
+        }
 
         static void Main()
         {
             string username;
             string password;
+            int attempts = 0;
+            int maxAttempts = 0;
 
+            bool exitProgam = true;
             //Dictionary<staff, staff> staffDictionary = new Dictionary<staff, staff>();
 
-
+            Validator validator = new Validator();
 
             string loginDetailsFileName = "loginDetails.txt";
+
+            if (!File.Exists(loginDetailsFileName))
+            {
+                Console.WriteLine("It looks like Login record does not exits!\n" +
+                    "\nInput username and password to continue... \n");
+                OverrideOrCreateLoginFile(validator, loginDetailsFileName);
+
+            }
+
 
             if (File.Exists(loginDetailsFileName))
             {
 
 
-                StreamReader readLoginFile = new StreamReader(loginDetailsFileName);
-
-                Validator validator = new Validator();
-
-                string usernameFromFile = readLoginFile.ReadLine();
-
-                Console.WriteLine(usernameFromFile);
-
-                string passwordFromFile = readLoginFile.ReadLine();
-                Console.WriteLine(passwordFromFile);
-
-                readLoginFile.Close();
 
                 Console.WriteLine("***** Welcome to Staffing Recruitment *****");
 
 
-                Console.WriteLine("\nPlease login to continue...\n");
 
 
-                //Console.Write("Enter username: ");
-                //username = Console.ReadLine();
 
-                username = validator.validateStringInput("Enter username: ");
-
-                password = validator.validateStringInput("Enter Password: ");
-                //password = Console.ReadLine();
-
-
-                if (username == usernameFromFile && password == passwordFromFile)
+                do
                 {
-                    Console.WriteLine("\nAccess granted!\n");
-
-                    int option = -1;
-
-                    storeStaffRecordInList();
+                    Console.WriteLine("\nPlease login to continue...\n");
 
 
-                    do
+                    //Console.Write("Enter username: ");
+                    //username = Console.ReadLine();
+
+                    username = validator.validateStringInput("Enter username: ");
+
+                    password = validator.validateStringInput("Enter Password: ");
+                    //password = Console.ReadLine();
+
+                    maxAttempts = readLoginDetails(loginDetailsFileName, username, password).Item2;
+
+
+
+                    if (readLoginDetails(loginDetailsFileName, username, password).Item1)
                     {
-                        Staff newStaffMember = new Staff();
+                        Console.WriteLine("\nAccess granted!\n");
+
+                        int option = -1;
+
+                        storeStaffRecordInList();
 
 
-                        Console.WriteLine("\n1. Create new Staff Detail");
-                        Console.WriteLine("2. View all Staffs Details");
-                        Console.WriteLine("3. Assign Staff to Shifts");   //Dictionary and List
-                        Console.WriteLine("4. View all Staff shifts");
-                        Console.WriteLine("5. Approved Staff Shifts"); //Dictionary and List
-                        Console.WriteLine("6. View Staff Payments");
-                        Console.WriteLine("7. Update stuff Record");
-                        Console.WriteLine("8. Delete stuff Record");
-                        Console.WriteLine("9. *Update Login Details");
-                        Console.WriteLine("0. Exit Program!");
-
-                        option = validator.validateIntegerInput("\nEnter option: ");
-                        //option = int.Parse(Console.ReadLine());
-
-                        //use robust function for this purpose
-                        while (option < 0 || option > 9)
+                        do
                         {
-                            Console.WriteLine("Wrong Input! ");
-
-                        }
-
-                        switch (option)
-                        {
-                            case 1:
-
-                                string firstName, lastName, phoneNumber,
-                                emailAddress, address, dateOfBirth, gender, NInumber;
+                            Staff newStaffMember = new Staff();
 
 
-                                Console.WriteLine("\nEnter Staff Details...\n");
+                            Console.WriteLine("\n1. Create new Staff Detail");
+                            Console.WriteLine("2. View all Staffs Details");
+                            Console.WriteLine("3. Assign Staff to Shifts");   //Dictionary and List
+                            Console.WriteLine("4. View all Staff shifts");
+                            Console.WriteLine("5. Approved Staff Shifts"); //Dictionary and List
+                            Console.WriteLine("6. View Staff Payments");
+                            Console.WriteLine("7. Update stuff Record");
+                            Console.WriteLine("8. Delete stuff Record");
+                            Console.WriteLine("9. *Update Login Details");
+                            Console.WriteLine("0. Exit Program!");
 
-                                firstName = validator.validateStringInput("Enter first Name: ");
-                                //firstName = Console.ReadLine();
+                            option = validator.validateIntegerInput("\nEnter option: ");
+                            //option = int.Parse(Console.ReadLine());
 
-                                lastName = validator.validateStringInput("Enter last Name: ");
-                                //lastName = Console.ReadLine();
+                            //use robust function for this purpose
+                            while (option < 0 || option > 9)
+                            {
+                                Console.WriteLine("Wrong Input! ");
 
-                                ////// PHONE NUMBER VALIDATION
-                                ///
-                                phoneNumber = validator.validateStringInput("Enter Phone Number: ");
-                                //phoneNumber = Console.ReadLine();
+                            }
 
-                                while (!validator.checkPhoneNumber(phoneNumber))
-                                {
-                                    Console.WriteLine("Please include valid UK number!");
+                            switch (option)
+                            {
+                                case 1:
+
+                                    string firstName, lastName, phoneNumber,
+                                    emailAddress, address, dateOfBirth, gender, NInumber;
+
+
+                                    Console.WriteLine("\nEnter Staff Details...\n");
+
+                                    firstName = validator.validateStringInput("Enter first Name: ");
+                                    //firstName = Console.ReadLine();
+
+                                    lastName = validator.validateStringInput("Enter last Name: ");
+                                    //lastName = Console.ReadLine();
+
+                                    ////// PHONE NUMBER VALIDATION
+                                    ///
                                     phoneNumber = validator.validateStringInput("Enter Phone Number: ");
-                                }
+                                    //phoneNumber = Console.ReadLine();
 
-                                do
-                                {
-                                    emailAddress = validator.validateStringInput("Enter email address: ");
+                                    while (!validator.checkPhoneNumber(phoneNumber))
+                                    {
+                                        Console.WriteLine("Please include valid UK number!");
+                                        phoneNumber = validator.validateStringInput("Enter Phone Number: ");
+                                    }
 
-                                } while (new EmailAddressAttribute().IsValid(emailAddress) == false);
+                                    do
+                                    {
+                                        emailAddress = validator.validateStringInput("Enter email address: ");
+
+                                    } while (new EmailAddressAttribute().IsValid(emailAddress) == false);
 
 
-                                address = validator.validateStringInput("Enter home address: ");
-                                //address = Console.ReadLine();
+                                    address = validator.validateStringInput("Enter home address: ");
+                                    //address = Console.ReadLine();
 
-                                gender = validator.validateStringInput("Enter gender: ");
-                                //gender = Console.ReadLine();
+                                    gender = validator.validateStringInput("Enter gender: ");
+                                    //gender = Console.ReadLine();
 
-                                dateOfBirth = validator.validateStringInput("Enter Date of Birth: ");
-
-                                while (!validator.checkDob(dateOfBirth))
-                                {
-                                    Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy) or (dd-mm-yyy) !\n");
                                     dateOfBirth = validator.validateStringInput("Enter Date of Birth: ");
-                                }
+
+                                    while (!validator.checkDob(dateOfBirth))
+                                    {
+                                        Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy) or (dd-mm-yyy) !\n");
+                                        dateOfBirth = validator.validateStringInput("Enter Date of Birth: ");
+                                    }
 
 
-                                ///// Your National Insurance number is 9 digits long and starts
-                                ///with two letters, followed by six numbers and one letter e.g. AB123456C
-                                NInumber = validator.validateStringInput("Enter National Insurance number: ");
-                                //NInumber = Console.ReadLine();
-
-                                while (!validator.checkNINumber(NInumber))
-                                {
-                                    Console.WriteLine("Please input valid National Insurance number!");
+                                    ///// Your National Insurance number is 9 digits long and starts
+                                    ///with two letters, followed by six numbers and one letter e.g. AB123456C
                                     NInumber = validator.validateStringInput("Enter National Insurance number: ");
-                                }
+                                    //NInumber = Console.ReadLine();
 
-                                newStaffMember.setStaffDetails(firstName, lastName, phoneNumber,
-                                    emailAddress, address, gender, dateOfBirth, NInumber);
-
-                                Console.WriteLine("\nNew staff Record has been added!");
-
-                                Console.WriteLine(newStaffMember.displayStaffDetails() + "\n");
-
-                                File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
-
-                                Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
-
-
-                                //Delete the existing staff records from the List
-                                //for (int y=0; y<staffListObjects.Count; y++)
-                                //{
-                                //    staffListObjects.RemoveAt(y);
-                                //}
-
-                                staffListObjects.Clear();
-
-                                Console.WriteLine("\nTotal Records in the List (After Deletion): " + staffListObjects.Count);
-
-                                //Loading the newly added staff records into the staff List
-                                storeStaffRecordInList();
-
-                                Console.WriteLine("\nTotal Records in the List (Reading from file): " + staffListObjects.Count);
-
-
-                                Console.WriteLine("you are good to go!");
-
-
-                                break;
-
-                            case 2:
-
-                                //Displaying all staff records
-                                if (staffListObjects.Count > 0)
-                                {
-
-                                    Console.WriteLine();
-
-                                    for (int x = 0; x < staffListObjects.Count; x++)
+                                    while (!validator.checkNINumber(NInumber))
                                     {
-
-                                        Console.WriteLine(staffListObjects[x].displayStaffDetails());
-
+                                        Console.WriteLine("Please input valid National Insurance number!");
+                                        NInumber = validator.validateStringInput("Enter National Insurance number: ");
                                     }
 
-                                }
-                                else
-                                {
-                                    Console.WriteLine("No Staff Record is found!");
-                                }
-                                break;
+                                    newStaffMember.setStaffDetails(firstName, lastName, phoneNumber,
+                                        emailAddress, address, gender, dateOfBirth, NInumber);
 
-                            case 3:
+                                    Console.WriteLine("\nNew staff Record has been added!");
 
-                                
+                                    Console.WriteLine(newStaffMember.displayStaffDetails() + "\n");
 
+                                    File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
 
-                                break;
-
-                            case 4:
-                                break;
-
-                            case 5:
-                                break;
-
-                            case 6:
-                                break;
-
-                            case 7:
-                                int staffObjectIndexNumber = 0;
-                                bool foundStaffObj = false;
+                                    Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
 
 
-                                Console.WriteLine("\n*******************\n");
+                                    //Delete the existing staff records from the List
+                                    //for (int y=0; y<staffListObjects.Count; y++)
+                                    //{
+                                    //    staffListObjects.RemoveAt(y);
+                                    //}
 
-                                string identifyStaffFirstName = validator.validateStringInput("Enter Staff First Name: ");
-                                string identifyStaffLastName = validator.validateStringInput("Enter Staff Last Name: ");
-                                string identifyStaffDob = validator.validateStringInput("Enter Staff Date of Birth: ");
+                                    staffListObjects.Clear();
 
-                                for (int i = 0; i < staffListObjects.Count; i++)
-                                {
-                                    if (identifyStaffFirstName == staffListObjects[i].getFirstName() &&
-                                        identifyStaffLastName == staffListObjects[i].getLastName() &&
-                                        identifyStaffDob == staffListObjects[i].getDob())
+                                    Console.WriteLine("\nTotal Records in the List (After Deletion): " + staffListObjects.Count);
+
+                                    //Loading the newly added staff records into the staff List
+                                    storeStaffRecordInList();
+
+                                    Console.WriteLine("\nTotal Records in the List (Reading from file): " + staffListObjects.Count);
+
+
+                                    Console.WriteLine("you are good to go!");
+
+
+                                    break;
+
+                                case 2:
+
+                                    //Displaying all staff records
+                                    if (staffListObjects.Count > 0)
                                     {
-                                        staffObjectIndexNumber = i;
-                                        foundStaffObj = true;
+
+                                        Console.WriteLine();
+
+                                        for (int x = 0; x < staffListObjects.Count; x++)
+                                        {
+
+                                            Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                        }
+
                                     }
-                                }
-
-
-                                if (foundStaffObj)
-                                {
-                                    string updatedFirstName, updatedLastName, updatedPhoneNumber,
-                                    updatedEmailAddress, updatedAddress, updatedDateOfBirth,
-                                    updatedGender, updatedNInumber;
-
-                                    Console.WriteLine("Staff Index Number: " + staffObjectIndexNumber);
-
-                                    Console.WriteLine(staffListObjects[staffObjectIndexNumber].displayStaffDetails());
-
-                                    int choice = 0;
-
-
-                                    Console.WriteLine("\nSelect Any option to update Staff Record...\n");
-
-                                    Console.WriteLine("1. Update First Name: ");
-                                    Console.WriteLine("2. Update Last Name: ");
-                                    Console.WriteLine("3. Update Phone Number: ");
-                                    Console.WriteLine("4. Update Email Address: ");
-                                    Console.WriteLine("5. Update Address: ");
-                                    Console.WriteLine("6. Update Gender: ");
-                                    Console.WriteLine("7. Update Date of Birth: ");
-                                    Console.WriteLine("8. Update National Insurance Number: ");
-
-                                    choice = validator.validateIntegerInput("option: ");
-
-                                    while (choice != 1 && choice != 2 && choice != 3 && choice != 4 &&
-                                        choice != 5 && choice != 6 && choice != 7 && choice != 8)
+                                    else
                                     {
-                                        Console.WriteLine("Invalid Input!, please enter enter your option again!");
+                                        Console.WriteLine("No Staff Record is found!");
+                                    }
+                                    break;
+
+                                case 3:
+
+
+
+
+                                    break;
+
+                                case 4:
+                                    break;
+
+                                case 5:
+                                    break;
+
+                                case 6:
+                                    break;
+
+                                case 7:
+                                    int staffObjectIndexNumber = 0;
+                                    bool foundStaffObj = false;
+
+
+                                    Console.WriteLine("\n*******************\n");
+
+                                    string identifyStaffFirstName = validator.validateStringInput("Enter Staff First Name: ");
+                                    string identifyStaffLastName = validator.validateStringInput("Enter Staff Last Name: ");
+                                    string identifyStaffDob = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+                                    for (int i = 0; i < staffListObjects.Count; i++)
+                                    {
+                                        if (identifyStaffFirstName == staffListObjects[i].getFirstName() &&
+                                            identifyStaffLastName == staffListObjects[i].getLastName() &&
+                                            identifyStaffDob == staffListObjects[i].getDob())
+                                        {
+                                            staffObjectIndexNumber = i;
+                                            foundStaffObj = true;
+                                        }
+                                    }
+
+
+                                    if (foundStaffObj)
+                                    {
+                                        string updatedFirstName, updatedLastName, updatedPhoneNumber,
+                                        updatedEmailAddress, updatedAddress, updatedDateOfBirth,
+                                        updatedGender, updatedNInumber;
+
+                                        Console.WriteLine("Staff Index Number: " + staffObjectIndexNumber);
+
+                                        Console.WriteLine(staffListObjects[staffObjectIndexNumber].displayStaffDetails());
+
+                                        int choice = 0;
+
+
+                                        Console.WriteLine("\nSelect Any option to update Staff Record...\n");
+
+                                        Console.WriteLine("1. Update First Name");
+                                        Console.WriteLine("2. Update Last Name");
+                                        Console.WriteLine("3. Update Phone Number");
+                                        Console.WriteLine("4. Update Email Address");
+                                        Console.WriteLine("5. Update Address");
+                                        Console.WriteLine("6. Update Gender");
+                                        Console.WriteLine("7. Update Date of Birth");
+                                        Console.WriteLine("8. Update National Insurance Number\n");
+
                                         choice = validator.validateIntegerInput("option: ");
-                                    }
 
-                                    switch (choice)
-                                    {
-                                        case 1:
+                                        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 &&
+                                            choice != 5 && choice != 6 && choice != 7 && choice != 8)
+                                        {
+                                            Console.WriteLine("Invalid Input!, please enter enter your option again!");
+                                            choice = validator.validateIntegerInput("option: ");
+                                        }
 
-                                            updatedFirstName = validator.validateStringInput("Enter updated Staff First Name: ");
-                                            staffListObjects[staffObjectIndexNumber].setFirstName(updatedFirstName);
+                                        switch (choice)
+                                        {
+                                            case 1:
 
-                                            break;
+                                                updatedFirstName = validator.validateStringInput("Enter updated Staff First Name: ");
+                                                staffListObjects[staffObjectIndexNumber].setFirstName(updatedFirstName);
 
-                                        case 2:
+                                                break;
 
-                                            updatedLastName = validator.validateStringInput("Enter updated Staff Last Name: ");
-                                            staffListObjects[staffObjectIndexNumber].setLastName(updatedLastName);
+                                            case 2:
 
-                                            break;
+                                                updatedLastName = validator.validateStringInput("Enter updated Staff Last Name: ");
+                                                staffListObjects[staffObjectIndexNumber].setLastName(updatedLastName);
 
-                                        case 3:
+                                                break;
 
-                                            updatedPhoneNumber = validator.validateStringInput("Enter updated Phone Number: ");
+                                            case 3:
 
-                                            while (!validator.checkPhoneNumber(updatedPhoneNumber))
-                                            {
-                                                Console.WriteLine("Please include valid UK number!");
                                                 updatedPhoneNumber = validator.validateStringInput("Enter updated Phone Number: ");
-                                            }
 
-                                            staffListObjects[staffObjectIndexNumber].setPhoneNumber(updatedPhoneNumber);
+                                                while (!validator.checkPhoneNumber(updatedPhoneNumber))
+                                                {
+                                                    Console.WriteLine("Please include valid UK number!");
+                                                    updatedPhoneNumber = validator.validateStringInput("Enter updated Phone Number: ");
+                                                }
 
-                                            break;
+                                                staffListObjects[staffObjectIndexNumber].setPhoneNumber(updatedPhoneNumber);
 
-                                        case 4:
+                                                break;
 
-                                            updatedEmailAddress = validator.validateStringInput("Enter updated Email Address: ");
-                                            staffListObjects[staffObjectIndexNumber].setEmailAddress(updatedEmailAddress);
+                                            case 4:
 
-                                            break;
+                                                updatedEmailAddress = validator.validateStringInput("Enter updated Email Address: ");
+                                                staffListObjects[staffObjectIndexNumber].setEmailAddress(updatedEmailAddress);
 
-                                        case 5:
+                                                break;
+
+                                            case 5:
 
 
-                                            do
-                                            {
-                                                updatedAddress = validator.validateStringInput("Enter updated Address: ");
+                                                do
+                                                {
+                                                    updatedAddress = validator.validateStringInput("Enter updated Address: ");
 
-                                            } while (new EmailAddressAttribute().IsValid(updatedAddress) == false);
+                                                } while (new EmailAddressAttribute().IsValid(updatedAddress) == false);
 
-                                            staffListObjects[staffObjectIndexNumber].setAddress(updatedAddress);
+                                                staffListObjects[staffObjectIndexNumber].setAddress(updatedAddress);
 
-                                            break;
+                                                break;
 
-                                        case 6:
+                                            case 6:
 
-                                            updatedGender = validator.validateStringInput("Enter updated gender: ");
-                                            staffListObjects[staffObjectIndexNumber].setGender(updatedGender);
+                                                updatedGender = validator.validateStringInput("Enter updated gender: ");
+                                                staffListObjects[staffObjectIndexNumber].setGender(updatedGender);
 
-                                            break;
-                                        case 7:
+                                                break;
+                                            case 7:
 
-                                            updatedDateOfBirth = validator.validateStringInput("Enter updated Date of Birth: ");
-
-                                            while (!validator.checkDob(updatedDateOfBirth))
-                                            {
-                                                Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy) or (dd-mm-yyy) !\n");
                                                 updatedDateOfBirth = validator.validateStringInput("Enter updated Date of Birth: ");
-                                            }
 
-                                            staffListObjects[staffObjectIndexNumber].setDob(updatedDateOfBirth);
+                                                while (!validator.checkDob(updatedDateOfBirth))
+                                                {
+                                                    Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy) or (dd-mm-yyy) !\n");
+                                                    updatedDateOfBirth = validator.validateStringInput("Enter updated Date of Birth: ");
+                                                }
 
-                                            break;
-                                        case 8:
+                                                staffListObjects[staffObjectIndexNumber].setDob(updatedDateOfBirth);
 
-                                            updatedNInumber = validator.validateStringInput("Enter updated National Insurance Number: ");
+                                                break;
+                                            case 8:
 
-                                            while (!validator.checkNINumber(updatedNInumber))
-                                            {
-                                                Console.WriteLine("Please input valid National Insurance number!");
                                                 updatedNInumber = validator.validateStringInput("Enter updated National Insurance Number: ");
 
-                                            }
+                                                while (!validator.checkNINumber(updatedNInumber))
+                                                {
+                                                    Console.WriteLine("Please input valid National Insurance number!");
+                                                    updatedNInumber = validator.validateStringInput("Enter updated National Insurance Number: ");
 
-                                            staffListObjects[staffObjectIndexNumber].setNInumber(updatedNInumber);
+                                                }
 
-                                            break;
+                                                staffListObjects[staffObjectIndexNumber].setNInumber(updatedNInumber);
+
+                                                break;
+
+                                        }
+
+
+
+                                        Console.WriteLine("New Staff Record has been updated successfully!");
+                                        Console.WriteLine(staffListObjects[staffObjectIndexNumber].displayStaffDetails());
+
+                                        Console.WriteLine("\nTesting...\n");
+                                        StreamWriter writeToFile = new StreamWriter("staffDetails.txt");
+
+                                        for (int x = 0; x < staffListObjects.Count; x++)
+                                        {
+                                            Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                            writeToFile.Write(staffListObjects[x].displayStaffDetails());
+                                        }
+
+                                        writeToFile.Close();
+
+                                        Console.WriteLine("\nTaking you back to main menu...\n");
+
+                                        //Save the new list objects into a file
+                                        //Delete all list objects
+                                        //Read all the staff records from the file and store into a list
 
                                     }
 
-
-
-                                    Console.WriteLine("Update Staff Record!");
-                                    Console.WriteLine(staffListObjects[staffObjectIndexNumber].displayStaffDetails());
-
-                                    Console.WriteLine("\nTesting...\n");
-                                    StreamWriter writeToFile = new StreamWriter("staffDetails.txt");
-
-                                    for (int x = 0; x < staffListObjects.Count; x++)
+                                    else
                                     {
-                                        Console.WriteLine(staffListObjects[x].displayStaffDetails());
-
-                                        writeToFile.WriteLine(staffListObjects[x].storeStaffRecordsInFileAfterDeletion());
+                                        Console.WriteLine("\nSorry, Staff Record Not found! ");
                                     }
+                                    break;
 
-                                    writeToFile.Close();
+                                case 8:
 
-                                    Console.WriteLine("\nTaking you back to main menu...\n");
+                                    //Deleting staff Records
+                                    Console.WriteLine();
 
-                                    //Save the new list objects into a file
-                                    //Delete all list objects
-                                    //Read all the staff records from the file and store into a list
-
-                                }
-
-                                else
-                                {
-                                    Console.WriteLine("\nSorry, Staff Record Not found! ");
-                                }
-                                break;
-
-                            case 8:
-
-                                //Deleting staff Records
-                                Console.WriteLine();
-
-                                int staffObjectIndexNumber1 = 0;
-                                bool foundStaffObj1 = false;
+                                    int staffObjectIndexNumber1 = 0;
+                                    bool foundStaffObj1 = false;
 
 
-                                Console.WriteLine("\n*******************\n");
+                                    Console.WriteLine("\n*******************\n");
 
-                                string identifyStaffFirstName1 = validator.validateStringInput("Enter Staff First Name: ");
-                                string identifyStaffLastName1 = validator.validateStringInput("Enter Staff Last Name: ");
-                                string identifyStaffDob1 = validator.validateStringInput("Enter Staff Date of Birth: ");
+                                    string identifyStaffFirstName1 = validator.validateStringInput("Enter Staff First Name: ");
+                                    string identifyStaffLastName1 = validator.validateStringInput("Enter Staff Last Name: ");
+                                    string identifyStaffDob1 = validator.validateStringInput("Enter Staff Date of Birth: ");
 
-                                for (int i = 0; i < staffListObjects.Count; i++)
-                                {
-                                    if (identifyStaffFirstName1 == staffListObjects[i].getFirstName() &&
-                                        identifyStaffLastName1 == staffListObjects[i].getLastName() &&
-                                        identifyStaffDob1 == staffListObjects[i].getDob())
+                                    for (int i = 0; i < staffListObjects.Count; i++)
                                     {
-                                        staffObjectIndexNumber1 = i;
-                                        foundStaffObj1 = true;
+                                        if (identifyStaffFirstName1 == staffListObjects[i].getFirstName() &&
+                                            identifyStaffLastName1 == staffListObjects[i].getLastName() &&
+                                            identifyStaffDob1 == staffListObjects[i].getDob())
+                                        {
+                                            staffObjectIndexNumber1 = i;
+                                            foundStaffObj1 = true;
+                                        }
                                     }
-                                }
 
 
-                                if (foundStaffObj1)
-                                {
-                                    Console.WriteLine("Staff Index Number: " + staffObjectIndexNumber1);
-                                    Console.WriteLine(staffListObjects[staffObjectIndexNumber1].displayStaffDetails());
-
-                                    staffListObjects.RemoveAt(staffObjectIndexNumber1);
-
-                                    Console.WriteLine("Above Staff Record has been deleted! ");
-
-                                    //Overwriting the staff record data since a record has been deleted from Staff List
-
-
-                                    Console.WriteLine("\nOverriding staff records.......\n");
-
-                                    StreamWriter writeToFile1 = new StreamWriter("staffDetails.txt");
-
-                                    Console.WriteLine("Total Staff Records: " + staffListObjects.Count);
-
-                                    for (int x = 0; x < staffListObjects.Count; x++)
+                                    if (foundStaffObj1)
                                     {
-                                        Console.WriteLine(staffListObjects[x].displayStaffDetails());
+                                        Console.WriteLine("Staff Index Number: " + staffObjectIndexNumber1);
+                                        Console.WriteLine(staffListObjects[staffObjectIndexNumber1].displayStaffDetails());
 
-                                        writeToFile1.WriteLine(staffListObjects[x].storeStaffRecordsInFileAfterDeletion());
+                                        staffListObjects.RemoveAt(staffObjectIndexNumber1);
+
+                                        Console.WriteLine("Above Staff Record has been deleted! ");
+
+                                        //Overwriting the staff record data since a record has been deleted from Staff List
+
+
+                                        Console.WriteLine("\nOverriding staff records.......\n");
+
+                                        StreamWriter writeToFile1 = new StreamWriter("staffDetails.txt");
+
+                                        Console.WriteLine("Total Staff Records: " + staffListObjects.Count);
+
+                                        for (int x = 0; x < staffListObjects.Count; x++)
+                                        {
+                                            Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                            writeToFile1.Write(staffListObjects[x].displayStaffDetails());
+                                        }
+
+                                        writeToFile1.Close();
+
                                     }
 
-                                    writeToFile1.Close();
+                                    else
+                                    {
+                                        Console.WriteLine("Sorry, Staff Record Not found! ");
+                                    }
 
-                                }
+                                    break;
 
-                                else
-                                {
-                                    Console.WriteLine("Sorry, Staff Record Not found! ");
-                                }
+                                case 9:
 
-                                break;
+                                    username = validator.validateStringInput("Enter username: ");
 
-                            case 9:
-                                break;
+                                    password = validator.validateStringInput("Enter Password: ");
+                                    //password = Console.ReadLine();
 
 
+                                    if (readLoginDetails(loginDetailsFileName, username, password).Item1)
+                                    {
+
+                                        OverrideOrCreateLoginFile(validator, loginDetailsFileName);
+
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Sorry, username and password does not match!");
+                                    }
+
+                                    break;
+
+
+                            }
+
+
+                        } while (option != 0);
+
+                            exitProgam = false;
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nUsername or Password doesn't match, Try again!");
+                        attempts++;
+                        Console.WriteLine("Login Attempt number: " + attempts);
+
+                        if (attempts == maxAttempts)
+                        {
+                            Console.WriteLine("\nSorry your maximum login attemps is breached!\n");
+                            Console.WriteLine("Closing Program...!");
+                            exitProgam = false;
                         }
+                    }
 
+                } while (exitProgam);
 
-                    } while (option != 0);
-                }
-                else
-                {
-                    Console.WriteLine("\nUsername or Password doesn't match, closing program!");
-                }
-
+                
             }
+
+
             else
             {
-                Console.WriteLine("Cannot Procced Login file doesn't exits, closing program!");
+                Console.WriteLine("Cannot Procced Login file doesn't exits!");
+
             }
+
 
             Console.ReadKey();
 
