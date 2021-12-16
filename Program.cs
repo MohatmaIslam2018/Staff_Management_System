@@ -13,6 +13,80 @@ namespace Staff_Management_System
 
     [Serializable]
 
+    class Customer
+    {
+        protected string customerFirstName;
+        protected string customerLastName;
+        protected string customerPhoneNumber;
+        private string emailAddress;
+        private string gender;
+
+
+        public string getCustomerFirstName()
+        {
+            return this.customerFirstName;
+        }
+
+        public string getCustomerLastName()
+        {
+            return this.customerLastName;
+        }
+
+        public string getCustomerPhoneNumber()
+        {
+            return this.customerPhoneNumber;
+        }
+
+        public void setCustomerDetails(string customerFirstName, string customerLastName,
+            string phoneNumber, string emailAddress, string gender)
+        {
+            this.customerFirstName = customerFirstName;
+            this.customerLastName = customerLastName;
+            this.customerPhoneNumber = phoneNumber;
+            this.emailAddress = emailAddress;
+            this.gender = gender;
+        }
+
+        public string displayCustomerDetail()
+        {
+            return this.customerFirstName + "," + this.customerLastName + "," +
+                this.customerPhoneNumber + "," + this.emailAddress + "," + this.gender + "\n";
+        }
+    }
+
+    [Serializable]
+
+    class Booking : Customer
+    {
+        private string bookingDate;
+        private string typeOfService;
+        private bool serviceCompleted;
+        private double paymentMade;
+
+        public void setBookingDetail(string customerFirstName, string customerLastName,
+            string customerPhoneNumber, string bookingDate, string typeOfService,
+            bool serviceCompleted, double paymentMade)
+        {
+            this.customerFirstName = customerFirstName;
+            this.customerLastName = customerLastName;
+            this.customerPhoneNumber = customerPhoneNumber;
+            this.bookingDate = bookingDate;
+            this.typeOfService = typeOfService;
+            this.serviceCompleted = serviceCompleted;
+            this.paymentMade = paymentMade;
+        }
+
+        public string displayBookingDetails()
+        {
+            return this.customerFirstName + "," + this.customerLastName + "," +
+                this.customerPhoneNumber + "," + this.bookingDate + "," +
+                this.typeOfService + "," + this.serviceCompleted + "," +
+                this.paymentMade + "\n";
+        }
+    }
+
+    [Serializable]
+
     class Staff
     {
         protected string staffFirstName;
@@ -152,8 +226,9 @@ namespace Staff_Management_System
     class StaffWeeklyJob : Staff
     {
         private string JobDescribtion;
-        private DateTime startDate;
-        private DateTime endDate;
+        private DateTime workDate;
+        private double hoursWorked;
+        private double hourlyPay;
         private double payment;
 
 
@@ -163,32 +238,29 @@ namespace Staff_Management_System
         }
 
         public void setJobRecord(string staffFirstName, string staffLastName, string dateOfBirth,
-            string JobDescribtion, DateTime startDate, DateTime endDate, double payment)
+            string JobDescribtion, DateTime workDate, double hoursWorked, double hourlyPay, double payment)
         {
             this.staffFirstName = staffFirstName;
             this.staffLastName = staffLastName;
             this.dateOfBirth = dateOfBirth;
             this.JobDescribtion = JobDescribtion;
-            this.startDate = startDate;
-            this.endDate = endDate;
+            this.workDate = workDate;
+            this.hoursWorked = hoursWorked;
+            this.hourlyPay = hourlyPay;
             this.payment = payment;
         }
 
-        public DateTime getStartDate()
+        public DateTime getWorkDate()
         {
-            return this.startDate;
+            return this.workDate;
         }
 
-        public DateTime getEndDate()
-        {
-            return this.endDate;
-        }
 
         public string displayStaffWeekyJobRecord()
         {
             return this.staffFirstName + "," + this.staffLastName + "," + this.dateOfBirth + "," +
-                this.JobDescribtion + "," + this.startDate.ToShortDateString() + "," +
-                this.endDate.ToShortDateString() + "," + this.payment + "\n";
+                this.JobDescribtion + "," + this.workDate.ToShortDateString() + "," +
+                this.hoursWorked + "," + this.hourlyPay + "," + this.payment + "\n";
 
         }
 
@@ -217,6 +289,26 @@ namespace Staff_Management_System
 
         }
 
+        public double validateDoubleInput(string userInput)
+        {
+            Console.Write(userInput);
+
+            do
+            {
+                try
+                {
+                    userInput = Console.ReadLine();
+                    return double.Parse(userInput);
+                }
+                catch
+                {
+                    Console.Write("Sorry, float number is accepted, please try again: ");
+                }
+
+            } while (true);
+
+        }
+
         public string validateStringInput(string stringInput)
         {
             string storeStringInput;
@@ -230,6 +322,7 @@ namespace Staff_Management_System
 
             return storeStringInput;
         }
+
 
 
         public bool checkDob(string dobString)
@@ -338,8 +431,97 @@ namespace Staff_Management_System
 
         }
 
+        public static void displayStaffManagementMenu()
+        {
+            Console.WriteLine("\n1. Create New Staff Detail");
+            Console.WriteLine("2. View all Staffs Details");
+            Console.WriteLine("3. Store Staff Job Details");
+            Console.WriteLine("4. View all Staff shifts and payments");
+            Console.WriteLine("5. Find Total Payment made to Staff");
+            Console.WriteLine("6. Find Staff Records Details by date range");
+            Console.WriteLine("7. Update Staff Record");
+            Console.WriteLine("8. Delete Staff Record");
+            Console.WriteLine("9. Update Login Details");
+            Console.WriteLine("10. View Total Revenue and Expenses");
+            Console.WriteLine("0. Exit Program!");
+        }
+
+
+        public static void displayAppointmentManagementMenu()
+        {
+            Console.WriteLine("\n1. Create New Customer Detail");
+            Console.WriteLine("2. View all Customer Details");
+            Console.WriteLine("3. Make a Booking for a Customer");
+            Console.WriteLine("4. Complete Booking");
+            Console.WriteLine("4. View all Bookings");
+            Console.WriteLine("5. View Bookings with date range");
+            Console.WriteLine("6. Cancel Booking");
+            Console.WriteLine("0. Exit Program!");
+
+        }
+
         static void Main()
         {
+            int bookingManagementOption = -1;
+
+            Console.WriteLine("***** Welcome to Saloon Booking Management System *****");
+
+
+            Console.WriteLine("1. Store Customer Details and manage booking");
+            Console.WriteLine("2. Admin Panel - Staff Management");
+
+            Console.Write("Enter your option: ");
+            int initialOption = int.Parse(Console.ReadLine());
+
+            if(initialOption == 1)
+            {
+                do
+                {
+
+                    displayAppointmentManagementMenu();
+                    bookingManagementOption = int.Parse(Console.ReadLine());
+
+                    switch (bookingManagementOption)
+                    {
+                        case 1:
+                        //Create new Customer Detail
+
+
+                            break;
+
+                        case 2:
+                        //View all Customer Records
+
+
+                            break;
+
+                        case 3:
+                        //Create new Customer Booking
+
+                            break;
+
+                        case 4:
+                        //Complete Booking
+
+                            break;
+
+                        case 5:
+                        //View All Customer Bookings
+
+                            break;
+
+                        case 6:
+                            //Cancel Booking
+
+                            break;
+                    }
+                } while (bookingManagementOption != 0);
+                
+            }
+
+
+            else if(initialOption == 2)
+            { 
             string username;
             string password;
             int attempts = 0;
@@ -354,7 +536,7 @@ namespace Staff_Management_System
             StaffWeeklyJob weekyJob = new StaffWeeklyJob();
             List<StaffWeeklyJob> weekyJobList = new List<StaffWeeklyJob>();
 
-            
+
 
             if (File.Exists(staffJobRecordsFileName))
             {
@@ -420,7 +602,7 @@ namespace Staff_Management_System
                     {
                         Console.WriteLine("\nAccess granted!\n");
 
-                        int option = -1;
+                        int staffManagementOptions = -1;
 
                         staffObj.storeStaffRecordInList(staffListObjects);
 
@@ -430,29 +612,20 @@ namespace Staff_Management_System
                         {
                             Staff newStaffMember = new Staff();
 
+                                displayStaffManagementMenu();
+                            
 
-                            Console.WriteLine("\n1. Create new Staff Detail");
-                            Console.WriteLine("2. View all Staffs Details");
-                            Console.WriteLine("3. Store Staff Shift and make payment");
-                            Console.WriteLine("4. View all Staff shifts and payments");
-                            Console.WriteLine("5. Find Total Payment made to Staff");
-                            Console.WriteLine("6. Find Staff Shift Details by date range");
-                            Console.WriteLine("7. Update Staff Record");
-                            Console.WriteLine("8. Delete Staff Record");
-                            Console.WriteLine("9. Update Login Details");
-                            Console.WriteLine("0. Exit Program!");
-
-                            option = validator.validateIntegerInput("\nEnter option: ");
+                            staffManagementOptions = validator.validateIntegerInput("\nEnter option: ");
                             //option = int.Parse(Console.ReadLine());
 
                             //use robust function for this purpose
-                            while (option < 0 || option > 9)
+                            while (staffManagementOptions < 0 || staffManagementOptions > 9)
                             {
                                 Console.WriteLine("Wrong Input! ");
 
                             }
 
-                            switch (option)
+                            switch (staffManagementOptions)
                             {
                                 case 1:
 
@@ -463,15 +636,12 @@ namespace Staff_Management_System
                                     Console.WriteLine("\nEnter Staff Details...\n");
 
                                     firstName = validator.validateStringInput("Enter first Name: ");
-                                    //firstName = Console.ReadLine();
+
 
                                     lastName = validator.validateStringInput("Enter last Name: ");
-                                    //lastName = Console.ReadLine();
 
-                                    ////// PHONE NUMBER VALIDATION
-                                    ///
                                     phoneNumber = validator.validateStringInput("Enter Phone Number: ");
-                                    //phoneNumber = Console.ReadLine();
+
 
                                     while (!validator.checkPhoneNumber(phoneNumber))
                                     {
@@ -496,13 +666,12 @@ namespace Staff_Management_System
 
                                     while (!validator.checkDob(dateOfBirth))
                                     {
-                                        Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy) or (dd-mm-yyy) !\n");
+                                        Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy)!\n");
                                         dateOfBirth = validator.validateStringInput("Enter Date of Birth: ");
                                     }
 
 
                                     ///// Your National Insurance number is 9 digits long and starts
-                                    ///with two letters, followed by six numbers and one letter e.g. AB123456C
                                     NInumber = validator.validateStringInput("Enter National Insurance number: ");
                                     //NInumber = Console.ReadLine();
 
@@ -523,12 +692,6 @@ namespace Staff_Management_System
 
                                     Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
 
-
-                                    //Delete the existing staff records from the List
-                                    //for (int y=0; y<staffListObjects.Count; y++)
-                                    //{
-                                    //    staffListObjects.RemoveAt(y);
-                                    //}
 
                                     staffListObjects.Clear();
 
@@ -569,7 +732,7 @@ namespace Staff_Management_System
 
                                 case 3:
 
-                                    
+
 
 
                                     string identifyStaffFirstName_3 = validator.validateStringInput("Enter Staff First Name: ");
@@ -597,28 +760,21 @@ namespace Staff_Management_System
 
                                         string jobDescribtion = validator.validateStringInput("Enter Job Describtion: ");
 
-                                        string tempStartDate = validator.validateStringInput("Enter Job Start Date: ");
-                                        DateTime startDate = DateTime.Parse(tempStartDate);
+                                        string tempStartDate = validator.validateStringInput("Enter Work Date: ");
+                                        DateTime workDate = DateTime.Parse(tempStartDate);
 
-                                        string tempEndDate = validator.validateStringInput("Enter Job End Date: ");
-                                        DateTime endDate = DateTime.Parse(tempEndDate);
+                                        double hoursWorked = validator.validateDoubleInput("Enter Hours worked: ");
 
-                                        //Console.WriteLine(val1.ToShortDateString());
+                                        double hourlyPay = validator.validateDoubleInput("Enter Hourly Pay: ");
 
-                                        //Console.WriteLine(val2.ToShortDateString());
 
-                                        Console.WriteLine("\nDays worked: " + startDate.ToShortDateString() + " - " + endDate.ToShortDateString());
-
-                                        int totalDaysWorked = (endDate.Day - startDate.Day);
-
-                                        Console.WriteLine("Total Days worked: " + totalDaysWorked);
-
-                                        double totalPayment = totalDaysWorked * 106.92;
+                                        double totalPayment = hoursWorked * hourlyPay;
 
                                         Console.WriteLine("Total payment made to staff: " + totalPayment);
 
 
-                                        weekyJob.setJobRecord(staffFName, staffLName, staffDob, jobDescribtion, startDate, endDate, totalPayment);
+                                        weekyJob.setJobRecord(staffFName, staffLName, staffDob,
+                                            jobDescribtion, workDate, hoursWorked, hourlyPay, totalPayment);
 
                                         weekyJobList.Add(weekyJob);
 
@@ -660,15 +816,23 @@ namespace Staff_Management_System
                                 case 4:
                                     //Reading from Binary File
 
-                                    
-
-                                    Console.WriteLine("\nDisplaying Job Record in desending order according to payments made....\n");
-
-                                    List<StaffWeeklyJob> staffs = weekyJobList.OrderByDescending(payment => payment.getPayment()).ToList();
-                                    foreach (StaffWeeklyJob staff in staffs)
+                                    if (weekyJobList.Count > 0)
                                     {
-                                        Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                        Console.WriteLine("\nDisplaying Job Record in desending order according to payments made....\n");
+
+                                        List<StaffWeeklyJob> staffs = weekyJobList.OrderByDescending(payment => payment.getPayment()).ToList();
+                                        foreach (StaffWeeklyJob staff in staffs)
+                                        {
+                                            Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                        }
                                     }
+                                    else
+                                    {
+                                        Console.WriteLine("\nSorry no Staff Job Record found!\n");
+                                    }
+
+
+
 
 
                                     break;
@@ -676,58 +840,72 @@ namespace Staff_Management_System
                                 //Total Payment of Made to Staff
                                 case 5:
 
-                                    double totalPaymentMadeToStaff = 0;
-                                    bool foundStaffRecord = false;
-
-                                    string identifyStaffFirstName_5 = validator.validateStringInput("Enter Staff First Name: ");
-                                    string identifyStaffLastName_5 = validator.validateStringInput("Enter Staff Last Name: ");
-                                    string identifyStaffDob_5 = validator.validateStringInput("Enter Staff Date of Birth: ");
-
-                                    Console.WriteLine();
-
-                                    for (int i = 0; i < weekyJobList.Count; i++)
+                                    if (weekyJobList.Count > 0)
                                     {
-                                        if (identifyStaffFirstName_5 == weekyJobList[i].getFirstName() &&
-                                            identifyStaffLastName_5 == weekyJobList[i].getLastName() &&
-                                            identifyStaffDob_5 == weekyJobList[i].getDob())
+
+                                        double totalPaymentMadeToStaff = 0;
+                                        bool foundStaffRecord = false;
+
+                                        string identifyStaffFirstName_5 = validator.validateStringInput("Enter Staff First Name: ");
+                                        string identifyStaffLastName_5 = validator.validateStringInput("Enter Staff Last Name: ");
+                                        string identifyStaffDob_5 = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+                                        Console.WriteLine();
+
+                                        for (int i = 0; i < weekyJobList.Count; i++)
                                         {
-                                            Console.WriteLine(weekyJobList[i].displayStaffWeekyJobRecord());
-                                            totalPaymentMadeToStaff += weekyJobList[i].getPayment();
-                                            foundStaffRecord = true;
-                                        }
+                                            if (identifyStaffFirstName_5 == weekyJobList[i].getFirstName() &&
+                                                identifyStaffLastName_5 == weekyJobList[i].getLastName() &&
+                                                identifyStaffDob_5 == weekyJobList[i].getDob())
+                                            {
+                                                Console.WriteLine(weekyJobList[i].displayStaffWeekyJobRecord());
+                                                totalPaymentMadeToStaff += weekyJobList[i].getPayment();
+                                                foundStaffRecord = true;
+                                            }
 
-                                    }
-                                    if (foundStaffRecord)
-                                    {
-                                        Console.WriteLine("\nTotal Payment Made to " + identifyStaffFirstName_5 +
-                                           " " + identifyStaffLastName_5 + " : " + totalPaymentMadeToStaff);
+                                        }
+                                        if (foundStaffRecord)
+                                        {
+                                            Console.WriteLine("\nTotal Payment Made to " + identifyStaffFirstName_5 +
+                                               " " + identifyStaffLastName_5 + " : " + totalPaymentMadeToStaff);
+
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Sorry, No Staff Record found!");
+                                        }
 
                                     }
                                     else
                                     {
-                                        Console.WriteLine("Sorry, No Staff Record found!");
+                                        Console.WriteLine("\nSorry no Staff Job Record found!\n");
                                     }
                                     break;
 
                                 //How to find objects from Date range
                                 case 6:
 
-                                    //string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
-                                    //string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
+                                    if (weekyJobList.Count > 0)
+                                    {
 
-                                    //DateTime firstDate = DateTime.Parse(tempFirstDate);
-                                    //DateTime secondDate = DateTime.Parse(tempSecondDate);
+                                        string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
+                                        string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
 
-                                    //List<StaffWeeklyJob> findStaffRecord = weekyJobList.Where(find => find.getStartDate() >= firstDate
-                                    //    && find.getEndDate() >= secondDate).ToList();
+                                        DateTime firstDate = DateTime.Parse(tempFirstDate);
+                                        DateTime secondDate = DateTime.Parse(tempSecondDate);
 
+                                        List<StaffWeeklyJob> findStaffRecord = weekyJobList.Where(
+                                            find => find.getWorkDate() >= firstDate && find.getWorkDate() <= secondDate).ToList();
 
-                                    //foreach (StaffWeeklyJob staff in findStaffRecord)
-                                    //{
-                                    //    Console.WriteLine(staff.displayStaffWeekyJobRecord());
-                                    //}
-
-
+                                        foreach (StaffWeeklyJob staff in findStaffRecord)
+                                        {
+                                            Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("\nSorry no Staff Job Record found!\n");
+                                    }
                                     break;
 
                                 case 7:
@@ -1005,12 +1183,15 @@ namespace Staff_Management_System
                                     }
 
                                     break;
+                                default:
+                                    Console.WriteLine("Invalid Input, Please try again!");
+                                    break;
 
 
                             }
 
 
-                        } while (option != 0);
+                        } while (staffManagementOptions != 0);
 
                         exitProgam = false;
 
@@ -1041,6 +1222,9 @@ namespace Staff_Management_System
 
             }
 
+
+        }
+            Console.WriteLine("\nClosing Program...");
 
             Console.ReadKey();
 
