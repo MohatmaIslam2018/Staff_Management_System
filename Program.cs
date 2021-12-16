@@ -2,23 +2,26 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Staff_Management_System
 {
+
     using System;
     using System.ComponentModel.DataAnnotations; //C# library to validate email address
 
+    [Serializable]
+
     class Staff
     {
-        private string staffFirstName;
-        private string staffLastName;
+        protected string staffFirstName;
+        protected string staffLastName;
         private string phoneNumber;
         private string emailAddress;
         private string address;
         private string gender;
         private string dateOfBirth;
         private string NInumber;
-
         public Staff()
         {
 
@@ -142,6 +145,36 @@ namespace Staff_Management_System
 
     }
 
+    [Serializable]
+
+    //Derived Class inherits Staff class attributes for Staff First Name and Last Name
+    class StaffWeeklyJob : Staff
+    {
+        private string JobDescribtion;
+        private DateTime startDate;
+        private DateTime endDate;
+        private double payment;
+
+        public void setJobRecord(string staffFirstName, string staffLastName,
+            string JobDescribtion, DateTime startDate, DateTime endDate, double payment)
+        {
+            this.staffFirstName = staffFirstName;
+            this.staffLastName = staffLastName;
+            this.JobDescribtion = JobDescribtion;
+            this.startDate = startDate;
+            this.endDate = endDate;
+            this.payment = payment;
+        }
+
+        public string displayStaffWeekyJobRecord()
+        {
+            return this.staffFirstName + "," + this.staffLastName + "," +
+                this.JobDescribtion + "," + this.startDate.ToShortDateString() + "," +
+                this.endDate.ToShortDateString() + "," + this.payment + "\n";
+
+        }
+    }
+
     class Validator
     {
 
@@ -182,7 +215,7 @@ namespace Staff_Management_System
 
         public bool checkDob(string dobString)
         {
-            string dobPattern = @"^\d{2}?((-)|(/))?\d{2}?((-)|(/))?\d{4}$";
+            string dobPattern = @"^\d{2}?(/)?\d{2}?(/)?\d{4}$";
 
 
             Regex dobRegex = new Regex(dobPattern);
@@ -227,6 +260,7 @@ namespace Staff_Management_System
     }
 
     [Serializable]
+
     class Program
     {
 
@@ -291,9 +325,15 @@ namespace Staff_Management_System
             string password;
             int attempts = 0;
             int maxAttempts = 0;
+            string FName = "staffJobRecords.dat";
+
+
+            StaffWeeklyJob weekyJob = new StaffWeeklyJob();
+            List<StaffWeeklyJob> weekyJobList = new List<StaffWeeklyJob>();
+
 
             bool exitProgam = true;
-            
+
             Dictionary<string, int> staffDictionaryShift = new Dictionary<string, int>();
 
             List<string> staffListObjectsShift = new List<string>(staffDictionaryShift.Keys);
@@ -345,6 +385,7 @@ namespace Staff_Management_System
                         int option = -1;
 
                         staffObj.storeStaffRecordInList(staffListObjects);
+
 
 
                         do
@@ -490,23 +531,100 @@ namespace Staff_Management_System
 
                                 case 3:
 
+                                    Staff staffJobRec = new Staff();
 
                                     string identifyStaffFirstName_3 = validator.validateStringInput("Enter Staff First Name: ");
                                     string identifyStaffLastName_3 = validator.validateStringInput("Enter Staff Last Name: ");
                                     string identifyStaffDob_3 = validator.validateStringInput("Enter Staff Date of Birth: ");
 
 
-                                    int staffObjectIndexNumber_3 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
+                                    int staffObjectIndexNumber_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
                                         identifyStaffLastName_3, identifyStaffDob_3).Item1;
 
-                                    bool foundStaffObj1 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
+                                    bool foundStaffObj_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
                                         identifyStaffLastName_3, identifyStaffDob_3).Item2;
+
+                                    if (foundStaffObj_3)
+                                    {
+
+
+                                        Console.WriteLine("\nIndex Num: " + staffObjectIndexNumber_3);
+
+                                        string staffFName = staffListObjects[staffObjectIndexNumber_3].getFirstName();
+                                        string staffLName = staffListObjects[staffObjectIndexNumber_3].getLastName();
+
+                                        Console.WriteLine("Staff Name: " + staffFName + " " + staffLName);
+
+                                        string jobDescribtion = validator.validateStringInput("Enter Job Describtion: ");
+
+                                        string tempStartDate = validator.validateStringInput("Enter Job Start Date: ");
+                                        DateTime startDate = DateTime.Parse(tempStartDate);
+
+                                        string tempEndDate = validator.validateStringInput("Enter Job End Date: ");
+                                        DateTime endDate = DateTime.Parse(tempEndDate);
+
+                                        //Console.WriteLine(val1.ToShortDateString());
+
+                                        //Console.WriteLine(val2.ToShortDateString());
+
+                                        Console.WriteLine("\nDays worked: " + startDate.ToShortDateString() + " - " + endDate.ToShortDateString());
+
+                                        int totalDaysWorked = (endDate.Day - startDate.Day);
+
+                                        Console.WriteLine("Total Days worked: " + totalDaysWorked);
+
+                                        double totalPayment = totalDaysWorked * 106.92;
+
+                                        Console.WriteLine("Total payment made to staff: " + totalPayment);
+
+
+                                        weekyJob.setJobRecord(staffFName, staffLName, jobDescribtion, startDate, endDate, totalPayment);
+
+                                        weekyJobList.Add(weekyJob);
+
+                                        BinaryFormatter bfObject = new BinaryFormatter();
+
+                                        // Create and open a binary file for storing the data.
+                                        FileStream file = File.Create(FName);
+
+                                        // Write the data to the file, converting to binary in the process.
+                                        bfObject.Serialize(file, weekyJobList);
+
+                                        // Close the file.
+                                        file.Close();
+
+
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("\nSorry, Staff Record not found!");
+                                    }
+
 
 
 
                                     break;
 
                                 case 4:
+                                    //Reading from Binary File
+                                    BinaryFormatter bf1 = new BinaryFormatter();
+
+                                    // Open the file storing the binary data.
+                                    FileStream file1 = File.OpenRead(FName);
+
+                                    weekyJobList = (List<StaffWeeklyJob>)bf1.Deserialize(file1);
+
+                                    Console.WriteLine("\nDisplaying Job Record....\n");
+
+                                    for (int i = 0; i < weekyJobList.Count; i++)
+                                    {
+                                        Console.WriteLine(weekyJobList[i].displayStaffWeekyJobRecord());
+
+                                    }
+
+                                    file1.Close();
+
+
                                     break;
 
                                 case 5:
@@ -708,7 +826,7 @@ namespace Staff_Management_System
                                             identifyStaffDob_8 == staffListObjects[i].getDob())
                                         {
                                             staffObjectIndexNum_8 = i;
-                                            foundStaffObj1 = true;
+                                            foundStaffObj_8 = true;
                                         }
                                     }
 
