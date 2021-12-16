@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 
 namespace Staff_Management_System
 {
@@ -20,7 +21,7 @@ namespace Staff_Management_System
         private string emailAddress;
         private string address;
         private string gender;
-        private string dateOfBirth;
+        protected string dateOfBirth;
         private string NInumber;
         public Staff()
         {
@@ -155,24 +156,42 @@ namespace Staff_Management_System
         private DateTime endDate;
         private double payment;
 
-        public void setJobRecord(string staffFirstName, string staffLastName,
+
+        public double getPayment()
+        {
+            return this.payment = payment;
+        }
+
+        public void setJobRecord(string staffFirstName, string staffLastName, string dateOfBirth,
             string JobDescribtion, DateTime startDate, DateTime endDate, double payment)
         {
             this.staffFirstName = staffFirstName;
             this.staffLastName = staffLastName;
+            this.dateOfBirth = dateOfBirth;
             this.JobDescribtion = JobDescribtion;
             this.startDate = startDate;
             this.endDate = endDate;
             this.payment = payment;
         }
 
+        public DateTime getStartDate()
+        {
+            return this.startDate;
+        }
+
+        public DateTime getEndDate()
+        {
+            return this.endDate;
+        }
+
         public string displayStaffWeekyJobRecord()
         {
-            return this.staffFirstName + "," + this.staffLastName + "," +
+            return this.staffFirstName + "," + this.staffLastName + "," + this.dateOfBirth + "," +
                 this.JobDescribtion + "," + this.startDate.ToShortDateString() + "," +
                 this.endDate.ToShortDateString() + "," + this.payment + "\n";
 
         }
+
     }
 
     class Validator
@@ -325,12 +344,31 @@ namespace Staff_Management_System
             string password;
             int attempts = 0;
             int maxAttempts = 0;
-            string FName = "staffJobRecords.dat";
+            string staffJobRecordsFileName = "staffJobRecords.dat";
+            bool staffJobRecordsFileNameExists = false;
+
+
+            Staff staffJobRec = new Staff();
 
 
             StaffWeeklyJob weekyJob = new StaffWeeklyJob();
             List<StaffWeeklyJob> weekyJobList = new List<StaffWeeklyJob>();
 
+            
+
+            if (File.Exists(staffJobRecordsFileName))
+            {
+                BinaryFormatter bf1 = new BinaryFormatter();
+
+                // Open the file storing the binary data.
+                FileStream file1 = File.OpenRead(staffJobRecordsFileName);
+
+                weekyJobList = (List<StaffWeeklyJob>)bf1.Deserialize(file1);
+
+                file1.Close();
+
+                staffJobRecordsFileNameExists = true;
+            }
 
             bool exitProgam = true;
 
@@ -395,12 +433,12 @@ namespace Staff_Management_System
 
                             Console.WriteLine("\n1. Create new Staff Detail");
                             Console.WriteLine("2. View all Staffs Details");
-                            Console.WriteLine("3. Assign Staff to Shifts");   //Dictionary and List
-                            Console.WriteLine("4. View all Staff shifts");
-                            Console.WriteLine("5. Approved Staff Shifts"); //Dictionary and List
-                            Console.WriteLine("6. View Staff Payments");
-                            Console.WriteLine("7. Update stuff Record");
-                            Console.WriteLine("8. Delete stuff Record");
+                            Console.WriteLine("3. Store Staff Shift and make payment");
+                            Console.WriteLine("4. View all Staff shifts and payments");
+                            Console.WriteLine("5. Find Total Payment made to Staff");
+                            Console.WriteLine("6. Find Staff Shift Details by date range");
+                            Console.WriteLine("7. Update Staff Record");
+                            Console.WriteLine("8. Delete Staff Record");
                             Console.WriteLine("9. Update Login Details");
                             Console.WriteLine("0. Exit Program!");
 
@@ -531,7 +569,8 @@ namespace Staff_Management_System
 
                                 case 3:
 
-                                    Staff staffJobRec = new Staff();
+                                    
+
 
                                     string identifyStaffFirstName_3 = validator.validateStringInput("Enter Staff First Name: ");
                                     string identifyStaffLastName_3 = validator.validateStringInput("Enter Staff Last Name: ");
@@ -552,6 +591,7 @@ namespace Staff_Management_System
 
                                         string staffFName = staffListObjects[staffObjectIndexNumber_3].getFirstName();
                                         string staffLName = staffListObjects[staffObjectIndexNumber_3].getLastName();
+                                        string staffDob = staffListObjects[staffObjectIndexNumber_3].getDob();
 
                                         Console.WriteLine("Staff Name: " + staffFName + " " + staffLName);
 
@@ -578,20 +618,32 @@ namespace Staff_Management_System
                                         Console.WriteLine("Total payment made to staff: " + totalPayment);
 
 
-                                        weekyJob.setJobRecord(staffFName, staffLName, jobDescribtion, startDate, endDate, totalPayment);
+                                        weekyJob.setJobRecord(staffFName, staffLName, staffDob, jobDescribtion, startDate, endDate, totalPayment);
 
                                         weekyJobList.Add(weekyJob);
 
                                         BinaryFormatter bfObject = new BinaryFormatter();
 
                                         // Create and open a binary file for storing the data.
-                                        FileStream file = File.Create(FName);
+                                        FileStream file = File.Create(staffJobRecordsFileName);
 
                                         // Write the data to the file, converting to binary in the process.
                                         bfObject.Serialize(file, weekyJobList);
 
                                         // Close the file.
                                         file.Close();
+
+                                        if (!staffJobRecordsFileNameExists)
+                                        {
+                                            BinaryFormatter bf1 = new BinaryFormatter();
+
+                                            // Open the file storing the binary data.
+                                            FileStream file1 = File.OpenRead(staffJobRecordsFileName);
+
+                                            weekyJobList = (List<StaffWeeklyJob>)bf1.Deserialize(file1);
+
+                                            file1.Close();
+                                        }
 
 
                                     }
@@ -607,30 +659,75 @@ namespace Staff_Management_System
 
                                 case 4:
                                     //Reading from Binary File
-                                    BinaryFormatter bf1 = new BinaryFormatter();
 
-                                    // Open the file storing the binary data.
-                                    FileStream file1 = File.OpenRead(FName);
+                                    
 
-                                    weekyJobList = (List<StaffWeeklyJob>)bf1.Deserialize(file1);
+                                    Console.WriteLine("\nDisplaying Job Record in desending order according to payments made....\n");
 
-                                    Console.WriteLine("\nDisplaying Job Record....\n");
+                                    List<StaffWeeklyJob> staffs = weekyJobList.OrderByDescending(payment => payment.getPayment()).ToList();
+                                    foreach (StaffWeeklyJob staff in staffs)
+                                    {
+                                        Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                    }
+
+
+                                    break;
+
+                                //Total Payment of Made to Staff
+                                case 5:
+
+                                    double totalPaymentMadeToStaff = 0;
+                                    bool foundStaffRecord = false;
+
+                                    string identifyStaffFirstName_5 = validator.validateStringInput("Enter Staff First Name: ");
+                                    string identifyStaffLastName_5 = validator.validateStringInput("Enter Staff Last Name: ");
+                                    string identifyStaffDob_5 = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+                                    Console.WriteLine();
 
                                     for (int i = 0; i < weekyJobList.Count; i++)
                                     {
-                                        Console.WriteLine(weekyJobList[i].displayStaffWeekyJobRecord());
+                                        if (identifyStaffFirstName_5 == weekyJobList[i].getFirstName() &&
+                                            identifyStaffLastName_5 == weekyJobList[i].getLastName() &&
+                                            identifyStaffDob_5 == weekyJobList[i].getDob())
+                                        {
+                                            Console.WriteLine(weekyJobList[i].displayStaffWeekyJobRecord());
+                                            totalPaymentMadeToStaff += weekyJobList[i].getPayment();
+                                            foundStaffRecord = true;
+                                        }
 
                                     }
+                                    if (foundStaffRecord)
+                                    {
+                                        Console.WriteLine("\nTotal Payment Made to " + identifyStaffFirstName_5 +
+                                           " " + identifyStaffLastName_5 + " : " + totalPaymentMadeToStaff);
 
-                                    file1.Close();
-
-
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Sorry, No Staff Record found!");
+                                    }
                                     break;
 
-                                case 5:
-                                    break;
-
+                                //How to find objects from Date range
                                 case 6:
+
+                                    //string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
+                                    //string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
+
+                                    //DateTime firstDate = DateTime.Parse(tempFirstDate);
+                                    //DateTime secondDate = DateTime.Parse(tempSecondDate);
+
+                                    //List<StaffWeeklyJob> findStaffRecord = weekyJobList.Where(find => find.getStartDate() >= firstDate
+                                    //    && find.getEndDate() >= secondDate).ToList();
+
+
+                                    //foreach (StaffWeeklyJob staff in findStaffRecord)
+                                    //{
+                                    //    Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                    //}
+
+
                                     break;
 
                                 case 7:
