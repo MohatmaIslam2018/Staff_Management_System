@@ -19,7 +19,6 @@ namespace Staff_Management_System
         protected string customerLastName;
         protected string customerPhoneNumber;
         private string emailAddress;
-        private string gender;
 
 
         public string getCustomerFirstName()
@@ -38,19 +37,18 @@ namespace Staff_Management_System
         }
 
         public void setCustomerDetails(string customerFirstName, string customerLastName,
-            string phoneNumber, string emailAddress, string gender)
+            string phoneNumber, string emailAddress)
         {
             this.customerFirstName = customerFirstName;
             this.customerLastName = customerLastName;
             this.customerPhoneNumber = phoneNumber;
             this.emailAddress = emailAddress;
-            this.gender = gender;
         }
 
         public string displayCustomerDetail()
         {
             return this.customerFirstName + "," + this.customerLastName + "," +
-                this.customerPhoneNumber + "," + this.emailAddress + "," + this.gender + "\n";
+                this.customerPhoneNumber + "," + this.emailAddress + "\n";
         }
     }
 
@@ -221,9 +219,8 @@ namespace Staff_Management_System
     }
 
     [Serializable]
-
     //Derived Class inherits Staff class attributes for Staff First Name and Last Name
-    class StaffWeeklyJob : Staff
+    class StaffJobRecord : Staff
     {
         private string JobDescribtion;
         private DateTime workDate;
@@ -275,6 +272,7 @@ namespace Staff_Management_System
 
             do
             {
+
                 try
                 {
                     userInput = Console.ReadLine();
@@ -282,7 +280,10 @@ namespace Staff_Management_System
                 }
                 catch
                 {
-                    Console.Write("Sorry, only Integer value is accepted, please try again: ");
+                    if (userInput == "")
+                        Console.Write("This field cannot be empty: ");
+                    else
+                        Console.Write("Sorry, only Integer value is accepted, please try again: ");
                 }
 
             } while (true);
@@ -302,7 +303,10 @@ namespace Staff_Management_System
                 }
                 catch
                 {
-                    Console.Write("Sorry, float number is accepted, please try again: ");
+                    if (userInput == "")
+                        Console.Write("This field cannot be empty");
+                    else
+                        Console.Write("Sorry, float number is accepted, please try again: ");
                 }
 
             } while (true);
@@ -318,6 +322,11 @@ namespace Staff_Management_System
 
                 storeStringInput = Console.ReadLine();
 
+                if (storeStringInput == "")
+                {
+                    Console.WriteLine("This field cannot be empty....");
+                }
+
             } while (storeStringInput == "");
 
             return storeStringInput;
@@ -325,49 +334,126 @@ namespace Staff_Management_System
 
 
 
-        public bool checkDob(string dobString)
+        public string validateDateOfBirth(string stringInput)
         {
             string dobPattern = @"^\d{2}?(/)?\d{2}?(/)?\d{4}$";
 
 
             Regex dobRegex = new Regex(dobPattern);
 
-            if (!dobRegex.IsMatch(dobString))
+            string dobString;
+
+            do
             {
-                return false;
-            }
-            return true;
+                Console.Write(stringInput);
+
+                dobString = Console.ReadLine();
+
+                if (dobString == "")
+                {
+                    Console.WriteLine("This field cannot be empty....");
+                }
+                else if (!dobRegex.IsMatch(dobString))
+                {
+                    Console.WriteLine("Please enter a valid Birth Date like (01/01/2021)....");
+                }
+
+            } while (dobString == "" || !dobRegex.IsMatch(dobString));
+
+            return dobString;
 
         }
 
-        public bool checkPhoneNumber(string phoneNum)
+        public string validateEmailAddress(string stringInput)
         {
             string regPatternPhoneNumber = @"^((\+44)|(0))?\d{4}?\d{6}$";
 
             Regex rg = new Regex(regPatternPhoneNumber);
 
-            if (!rg.IsMatch(phoneNum))
+            string emailString;
+
+            do
             {
-                return false;
-            }
-            return true;
+                Console.Write(stringInput);
+
+                emailString = Console.ReadLine();
+
+                if (emailString == "")
+                {
+                    Console.WriteLine("This field cannot be empty....");
+                }
+                else if (new EmailAddressAttribute().IsValid(emailString) == false)
+                {
+                    Console.WriteLine("Please enter a valid Email Address....");
+                }
+
+            } while (emailString == "" || new EmailAddressAttribute().IsValid(emailString) == false);
+
+            return emailString;
 
         }
 
 
+        public string validatePhoneNumber(string stringInput)
+        {
+            string regPatternPhoneNumber = @"^((\+44)|(0))?\d{4}?\d{6}$";
 
-        public bool checkNINumber(string NInum)
+            Regex rg = new Regex(regPatternPhoneNumber);
+
+            string phoneNumerString;
+
+            do
+            {
+                Console.Write(stringInput);
+
+                phoneNumerString = Console.ReadLine();
+
+                if (phoneNumerString == "")
+                {
+                    Console.WriteLine("This field cannot be empty...");
+                }
+                else if (!rg.IsMatch(phoneNumerString))
+                {
+                    Console.WriteLine("Please enter a valid UK phone Number...");
+                }
+
+            } while (phoneNumerString == "" || !rg.IsMatch(phoneNumerString));
+
+            return phoneNumerString;
+        }
+
+
+        public string validateNationalInsuranceNumber(string stringInput)
         {
             string regPattern = @"^\s*[A-Z]{2}(?:\s*\d\s*){6}[A-Z]?\s*$";
 
             Regex rg = new Regex(regPattern);
 
-            if (!rg.IsMatch(NInum))
+            string NInumberString;
+
+            do
             {
-                return false;
-            }
-            return true;
+                Console.Write(stringInput);
+
+                NInumberString = Console.ReadLine();
+
+                if (NInumberString == "")
+                {
+                    Console.WriteLine("This field cannot be empty...");
+                }
+                else if (!rg.IsMatch(NInumberString))
+                {
+                    Console.WriteLine("Please enter a valid National Insurance Number like (BG342342A)...");
+                }
+
+            } while (NInumberString == "" || !rg.IsMatch(NInumberString));
+
+            return NInumberString;
+
+
         }
+
+
 
     }
 
@@ -463,50 +549,127 @@ namespace Staff_Management_System
         static void Main()
         {
             int bookingManagementOption = -1;
+            Validator validator = new Validator();
+
 
             Console.WriteLine("***** Welcome to Saloon Booking Management System *****");
 
 
-            Console.WriteLine("1. Store Customer Details and manage booking");
+            Console.WriteLine("\n1. Store Customer Details and manage booking");
             Console.WriteLine("2. Admin Panel - Staff Management");
 
-            Console.Write("Enter your option: ");
-            int initialOption = int.Parse(Console.ReadLine());
+            int initialOption = validator.validateIntegerInput("\nEnter your option: ");
 
-            if(initialOption == 1)
+            if (initialOption == 1)
             {
+
+                Customer customerObject = new Customer();
+                Booking bookingObject = new Booking();
+
+                List<Customer> customerList = new List<Customer>();
+                List<Booking> bookingList = new List<Booking>();
+
+                string customerRecordFileName = "customerDetails.dat";
+                bool customerDetailsFileNameExists = false;
+
+                if (File.Exists(customerRecordFileName))
+                {
+                    BinaryFormatter bf1 = new BinaryFormatter();
+
+                    FileStream file_1 = File.OpenRead(customerRecordFileName);
+
+                    customerList = (List<Customer>)bf1.Deserialize(file_1);
+
+                    file_1.Close();
+
+                    customerDetailsFileNameExists = true;
+                }
+
                 do
                 {
 
                     displayAppointmentManagementMenu();
+
+                    Console.Write("\nEnter you option: ");
                     bookingManagementOption = int.Parse(Console.ReadLine());
+
+                    Console.WriteLine();
 
                     switch (bookingManagementOption)
                     {
                         case 1:
-                        //Create new Customer Detail
+                            //Create new Customer Detail
+                            Console.WriteLine("\nEnter customre details....\n");
 
+                            string customerFirstName = validator.validateStringInput("Customer First Name: ");
+
+                            string customerLastName = validator.validateStringInput("Customer Last Name: ");
+
+                            string cutomerPhoneNumber = validator.validatePhoneNumber("Customer Phone Number: ");
+
+                            string customerEmailAddress = validator.validateEmailAddress("Customer Email Address: ");
+
+                            customerObject.setCustomerDetails(customerFirstName, customerLastName,
+                                cutomerPhoneNumber, customerEmailAddress);
+
+                            customerList.Add(customerObject);
+
+                            BinaryFormatter bfObject = new BinaryFormatter();
+
+                            FileStream file = File.Create(customerRecordFileName);
+
+                            bfObject.Serialize(file, customerList);
+
+                            file.Close();
+
+                            Console.WriteLine("\nCustomer Details has been successfully recorded!\n");
+
+                            //If this is first time storing Customer Details in file then run the below command
+                            //To load the data from the binary file to Customer List Object
+                            if (!customerDetailsFileNameExists)
+                            {
+                                BinaryFormatter bf_2 = new BinaryFormatter();
+
+                                FileStream file_2 = File.OpenRead(customerRecordFileName);
+
+                                customerList = (List<Customer>)bf_2.Deserialize(file_2);
+
+                                file_2.Close();
+                            }
 
                             break;
 
                         case 2:
-                        //View all Customer Records
+                            //View all Customer Records
+
+                            if (customerList.Count > 0)
+                            {
+                                foreach (Customer customer in customerList)
+                                {
+                                    Console.WriteLine(customer.displayCustomerDetail());
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Sorry, No cutomer data exits!");
+                            }
+
 
 
                             break;
 
                         case 3:
-                        //Create new Customer Booking
+                            //Create new Customer Booking
 
                             break;
 
                         case 4:
-                        //Complete Booking
+                            //Complete Booking
 
                             break;
 
                         case 5:
-                        //View All Customer Bookings
+                            //View All Customer Bookings
 
                             break;
 
@@ -516,714 +679,673 @@ namespace Staff_Management_System
                             break;
                     }
                 } while (bookingManagementOption != 0);
-                
-            }
-
-
-            else if(initialOption == 2)
-            { 
-            string username;
-            string password;
-            int attempts = 0;
-            int maxAttempts = 0;
-            string staffJobRecordsFileName = "staffJobRecords.dat";
-            bool staffJobRecordsFileNameExists = false;
-
-
-            Staff staffJobRec = new Staff();
-
-
-            StaffWeeklyJob weekyJob = new StaffWeeklyJob();
-            List<StaffWeeklyJob> weekyJobList = new List<StaffWeeklyJob>();
-
-
-
-            if (File.Exists(staffJobRecordsFileName))
-            {
-                BinaryFormatter bf1 = new BinaryFormatter();
-
-                // Open the file storing the binary data.
-                FileStream file1 = File.OpenRead(staffJobRecordsFileName);
-
-                weekyJobList = (List<StaffWeeklyJob>)bf1.Deserialize(file1);
-
-                file1.Close();
-
-                staffJobRecordsFileNameExists = true;
-            }
-
-            bool exitProgam = true;
-
-            Dictionary<string, int> staffDictionaryShift = new Dictionary<string, int>();
-
-            List<string> staffListObjectsShift = new List<string>(staffDictionaryShift.Keys);
-
-
-            List<Staff> staffListObjects = new List<Staff>();
-
-            Staff staffObj = new Staff();
-
-            Validator validator = new Validator();
-
-            string loginDetailsFileName = "loginDetails.txt";
-
-            if (!File.Exists(loginDetailsFileName))
-            {
-                Console.WriteLine("It looks like Login record does not exits!\n" +
-                    "\nInput username and password to continue... \n");
-                OverrideOrCreateLoginFile(validator, loginDetailsFileName);
 
             }
 
 
-            if (File.Exists(loginDetailsFileName))
+            else if (initialOption == 2)
             {
+                string username;
+                string password;
+                int attempts = 0;
+                int maxAttempts = 0;
+                string staffJobRecordsFileName = "staffJobRecords.dat";
+                bool staffJobRecordsFileNameExists = false;
 
-                Console.WriteLine("***** Welcome to Staffing Recruitment *****");
 
-                do
+                Staff staffJobRec = new Staff();
+
+
+                StaffJobRecord staffJobRecordObject = new StaffJobRecord();
+
+                List<StaffJobRecord> staffJobRecordList = new List<StaffJobRecord>();
+
+
+
+                if (File.Exists(staffJobRecordsFileName))
                 {
-                    Console.WriteLine("\nPlease login to continue...\n");
+                    BinaryFormatter bf_3 = new BinaryFormatter();
+
+                    FileStream file_3 = File.OpenRead(staffJobRecordsFileName);
+
+                    staffJobRecordList = (List<StaffJobRecord>)bf_3.Deserialize(file_3);
+
+                    file_3.Close();
+
+                    staffJobRecordsFileNameExists = true;
+                }
+
+                bool exitProgam = true;
+
+                Dictionary<string, int> staffDictionaryShift = new Dictionary<string, int>();
+
+                List<string> staffListObjectsShift = new List<string>(staffDictionaryShift.Keys);
 
 
-                    //Console.Write("Enter username: ");
-                    //username = Console.ReadLine();
+                List<Staff> staffListObjects = new List<Staff>();
 
-                    username = validator.validateStringInput("Enter username: ");
-
-                    password = validator.validateStringInput("Enter Password: ");
-                    //password = Console.ReadLine();
-
-                    maxAttempts = readLoginDetails(loginDetailsFileName, username, password).Item2;
+                Staff staffObj = new Staff();
 
 
+                string loginDetailsFileName = "loginDetails.txt";
 
-                    if (readLoginDetails(loginDetailsFileName, username, password).Item1)
+                if (!File.Exists(loginDetailsFileName))
+                {
+                    Console.WriteLine("It looks like Login record does not exits!\n" +
+                        "\nInput username and password to continue... \n");
+                    OverrideOrCreateLoginFile(validator, loginDetailsFileName);
+
+                }
+
+
+                if (File.Exists(loginDetailsFileName))
+                {
+
+                    Console.WriteLine("***** Welcome to Staffing Recruitment *****");
+
+                    do
                     {
-                        Console.WriteLine("\nAccess granted!\n");
-
-                        int staffManagementOptions = -1;
-
-                        staffObj.storeStaffRecordInList(staffListObjects);
+                        Console.WriteLine("\nPlease login to continue...\n");
 
 
+                        //Console.Write("Enter username: ");
+                        //username = Console.ReadLine();
 
-                        do
+                        username = validator.validateStringInput("Enter username: ");
+
+                        password = validator.validateStringInput("Enter Password: ");
+                        //password = Console.ReadLine();
+
+                        maxAttempts = readLoginDetails(loginDetailsFileName, username, password).Item2;
+
+
+
+                        if (readLoginDetails(loginDetailsFileName, username, password).Item1)
                         {
-                            Staff newStaffMember = new Staff();
+                            Console.WriteLine("\nAccess granted!\n");
+
+                            int staffManagementOptions = -1;
+
+                            staffObj.storeStaffRecordInList(staffListObjects);
+
+
+
+                            do
+                            {
+                                Staff newStaffMember = new Staff();
 
                                 displayStaffManagementMenu();
-                            
-
-                            staffManagementOptions = validator.validateIntegerInput("\nEnter option: ");
-                            //option = int.Parse(Console.ReadLine());
-
-                            //use robust function for this purpose
-                            while (staffManagementOptions < 0 || staffManagementOptions > 9)
-                            {
-                                Console.WriteLine("Wrong Input! ");
-
-                            }
-
-                            switch (staffManagementOptions)
-                            {
-                                case 1:
-
-                                    string firstName, lastName, phoneNumber,
-                                    emailAddress, address, dateOfBirth, gender, NInumber;
 
 
-                                    Console.WriteLine("\nEnter Staff Details...\n");
+                                staffManagementOptions = validator.validateIntegerInput("\nEnter option: ");
+                                //option = int.Parse(Console.ReadLine());
 
-                                    firstName = validator.validateStringInput("Enter first Name: ");
+                                //use robust function for this purpose
+                                while (staffManagementOptions < 0 || staffManagementOptions > 9)
+                                {
+                                    Console.WriteLine("Wrong Input! ");
 
+                                }
 
-                                    lastName = validator.validateStringInput("Enter last Name: ");
+                                switch (staffManagementOptions)
+                                {
+                                    case 1:
 
-                                    phoneNumber = validator.validateStringInput("Enter Phone Number: ");
-
-
-                                    while (!validator.checkPhoneNumber(phoneNumber))
-                                    {
-                                        Console.WriteLine("Please include valid UK number!");
-                                        phoneNumber = validator.validateStringInput("Enter Phone Number: ");
-                                    }
-
-                                    do
-                                    {
-                                        emailAddress = validator.validateStringInput("Enter email address: ");
-
-                                    } while (new EmailAddressAttribute().IsValid(emailAddress) == false);
+                                        string firstName, lastName, phoneNumber,
+                                        emailAddress, address, dateOfBirth, gender, NInumber;
 
 
-                                    address = validator.validateStringInput("Enter home address: ");
-                                    //address = Console.ReadLine();
+                                        Console.WriteLine("\nEnter Staff Details...\n");
 
-                                    gender = validator.validateStringInput("Enter gender: ");
-                                    //gender = Console.ReadLine();
-
-                                    dateOfBirth = validator.validateStringInput("Enter Date of Birth: ");
-
-                                    while (!validator.checkDob(dateOfBirth))
-                                    {
-                                        Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy)!\n");
-                                        dateOfBirth = validator.validateStringInput("Enter Date of Birth: ");
-                                    }
+                                        firstName = validator.validateStringInput("Enter first Name: ");
 
 
-                                    ///// Your National Insurance number is 9 digits long and starts
-                                    NInumber = validator.validateStringInput("Enter National Insurance number: ");
-                                    //NInumber = Console.ReadLine();
+                                        lastName = validator.validateStringInput("Enter last Name: ");
 
-                                    while (!validator.checkNINumber(NInumber))
-                                    {
-                                        Console.WriteLine("Please input valid National Insurance number!");
-                                        NInumber = validator.validateStringInput("Enter National Insurance number: ");
-                                    }
-
-                                    newStaffMember.setStaffDetails(firstName, lastName, phoneNumber,
-                                        emailAddress, address, gender, dateOfBirth, NInumber);
-
-                                    Console.WriteLine("\nNew staff Record has been added!");
-
-                                    Console.WriteLine(newStaffMember.displayStaffDetails() + "\n");
-
-                                    File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
-
-                                    Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
+                                        phoneNumber = validator.validatePhoneNumber("Enter Phone Number: ");
 
 
-                                    staffListObjects.Clear();
+                                        do
+                                        {
+                                            emailAddress = validator.validateStringInput("Enter email address: ");
 
-                                    Console.WriteLine("\nTotal Records in the List (After Deletion): " + staffListObjects.Count);
-
-                                    //Loading the newly added staff records into the staff List
-                                    staffObj.storeStaffRecordInList(staffListObjects);
-
-                                    Console.WriteLine("\nTotal Records in the List (Reading from file): " + staffListObjects.Count);
+                                        } while (new EmailAddressAttribute().IsValid(emailAddress) == false);
 
 
-                                    Console.WriteLine("you are good to go!");
+                                        address = validator.validateStringInput("Enter home address: ");
+                                        //address = Console.ReadLine();
+
+                                        gender = validator.validateStringInput("Enter gender: ");
+                                        //gender = Console.ReadLine();
+
+                                        dateOfBirth = validator.validateDateOfBirth("Enter Date of Birth: ");
 
 
-                                    break;
+                                        ///// Your National Insurance number is 9 digits long and starts
+                                        NInumber = validator.validateNationalInsuranceNumber("Enter National Insurance number: ");
 
-                                case 2:
 
-                                    //Displaying all staff records
-                                    if (staffListObjects.Count > 0)
-                                    {
+                                        newStaffMember.setStaffDetails(firstName, lastName, phoneNumber,
+                                            emailAddress, address, gender, dateOfBirth, NInumber);
 
-                                        Console.WriteLine();
+                                        Console.WriteLine("\nNew staff Record has been added!");
 
-                                        for (int x = 0; x < staffListObjects.Count; x++)
+                                        Console.WriteLine(newStaffMember.displayStaffDetails() + "\n");
+
+                                        File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
+
+                                        Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
+
+
+                                        staffListObjects.Clear();
+
+                                        Console.WriteLine("\nTotal Records in the List (After Deletion): " + staffListObjects.Count);
+
+                                        //Loading the newly added staff records into the staff List
+                                        staffObj.storeStaffRecordInList(staffListObjects);
+
+                                        Console.WriteLine("\nTotal Records in the List (Reading from file): " + staffListObjects.Count);
+
+
+                                        Console.WriteLine("you are good to go!");
+
+
+                                        break;
+
+                                    case 2:
+
+                                        //Displaying all staff records
+                                        if (staffListObjects.Count > 0)
                                         {
 
-                                            Console.WriteLine(staffListObjects[x].displayStaffDetails());
+                                            Console.WriteLine();
 
-                                        }
-
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("No Staff Record is found!");
-                                    }
-                                    break;
-
-                                case 3:
-
-
-
-
-                                    string identifyStaffFirstName_3 = validator.validateStringInput("Enter Staff First Name: ");
-                                    string identifyStaffLastName_3 = validator.validateStringInput("Enter Staff Last Name: ");
-                                    string identifyStaffDob_3 = validator.validateStringInput("Enter Staff Date of Birth: ");
-
-
-                                    int staffObjectIndexNumber_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
-                                        identifyStaffLastName_3, identifyStaffDob_3).Item1;
-
-                                    bool foundStaffObj_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
-                                        identifyStaffLastName_3, identifyStaffDob_3).Item2;
-
-                                    if (foundStaffObj_3)
-                                    {
-
-
-                                        Console.WriteLine("\nIndex Num: " + staffObjectIndexNumber_3);
-
-                                        string staffFName = staffListObjects[staffObjectIndexNumber_3].getFirstName();
-                                        string staffLName = staffListObjects[staffObjectIndexNumber_3].getLastName();
-                                        string staffDob = staffListObjects[staffObjectIndexNumber_3].getDob();
-
-                                        Console.WriteLine("Staff Name: " + staffFName + " " + staffLName);
-
-                                        string jobDescribtion = validator.validateStringInput("Enter Job Describtion: ");
-
-                                        string tempStartDate = validator.validateStringInput("Enter Work Date: ");
-                                        DateTime workDate = DateTime.Parse(tempStartDate);
-
-                                        double hoursWorked = validator.validateDoubleInput("Enter Hours worked: ");
-
-                                        double hourlyPay = validator.validateDoubleInput("Enter Hourly Pay: ");
-
-
-                                        double totalPayment = hoursWorked * hourlyPay;
-
-                                        Console.WriteLine("Total payment made to staff: " + totalPayment);
-
-
-                                        weekyJob.setJobRecord(staffFName, staffLName, staffDob,
-                                            jobDescribtion, workDate, hoursWorked, hourlyPay, totalPayment);
-
-                                        weekyJobList.Add(weekyJob);
-
-                                        BinaryFormatter bfObject = new BinaryFormatter();
-
-                                        // Create and open a binary file for storing the data.
-                                        FileStream file = File.Create(staffJobRecordsFileName);
-
-                                        // Write the data to the file, converting to binary in the process.
-                                        bfObject.Serialize(file, weekyJobList);
-
-                                        // Close the file.
-                                        file.Close();
-
-                                        if (!staffJobRecordsFileNameExists)
-                                        {
-                                            BinaryFormatter bf1 = new BinaryFormatter();
-
-                                            // Open the file storing the binary data.
-                                            FileStream file1 = File.OpenRead(staffJobRecordsFileName);
-
-                                            weekyJobList = (List<StaffWeeklyJob>)bf1.Deserialize(file1);
-
-                                            file1.Close();
-                                        }
-
-
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("\nSorry, Staff Record not found!");
-                                    }
-
-
-
-
-                                    break;
-
-                                case 4:
-                                    //Reading from Binary File
-
-                                    if (weekyJobList.Count > 0)
-                                    {
-                                        Console.WriteLine("\nDisplaying Job Record in desending order according to payments made....\n");
-
-                                        List<StaffWeeklyJob> staffs = weekyJobList.OrderByDescending(payment => payment.getPayment()).ToList();
-                                        foreach (StaffWeeklyJob staff in staffs)
-                                        {
-                                            Console.WriteLine(staff.displayStaffWeekyJobRecord());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("\nSorry no Staff Job Record found!\n");
-                                    }
-
-
-
-
-
-                                    break;
-
-                                //Total Payment of Made to Staff
-                                case 5:
-
-                                    if (weekyJobList.Count > 0)
-                                    {
-
-                                        double totalPaymentMadeToStaff = 0;
-                                        bool foundStaffRecord = false;
-
-                                        string identifyStaffFirstName_5 = validator.validateStringInput("Enter Staff First Name: ");
-                                        string identifyStaffLastName_5 = validator.validateStringInput("Enter Staff Last Name: ");
-                                        string identifyStaffDob_5 = validator.validateStringInput("Enter Staff Date of Birth: ");
-
-                                        Console.WriteLine();
-
-                                        for (int i = 0; i < weekyJobList.Count; i++)
-                                        {
-                                            if (identifyStaffFirstName_5 == weekyJobList[i].getFirstName() &&
-                                                identifyStaffLastName_5 == weekyJobList[i].getLastName() &&
-                                                identifyStaffDob_5 == weekyJobList[i].getDob())
+                                            for (int x = 0; x < staffListObjects.Count; x++)
                                             {
-                                                Console.WriteLine(weekyJobList[i].displayStaffWeekyJobRecord());
-                                                totalPaymentMadeToStaff += weekyJobList[i].getPayment();
-                                                foundStaffRecord = true;
-                                            }
 
-                                        }
-                                        if (foundStaffRecord)
-                                        {
-                                            Console.WriteLine("\nTotal Payment Made to " + identifyStaffFirstName_5 +
-                                               " " + identifyStaffLastName_5 + " : " + totalPaymentMadeToStaff);
+                                                Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                            }
 
                                         }
                                         else
                                         {
-                                            Console.WriteLine("Sorry, No Staff Record found!");
+                                            Console.WriteLine("No Staff Record is found!");
+                                        }
+                                        break;
+
+                                    case 3:
+
+
+
+
+                                        string identifyStaffFirstName_3 = validator.validateStringInput("Enter Staff First Name: ");
+                                        string identifyStaffLastName_3 = validator.validateStringInput("Enter Staff Last Name: ");
+                                        string identifyStaffDob_3 = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+
+                                        int staffObjectIndexNumber_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
+                                            identifyStaffLastName_3, identifyStaffDob_3).Item1;
+
+                                        bool foundStaffObj_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
+                                            identifyStaffLastName_3, identifyStaffDob_3).Item2;
+
+                                        if (foundStaffObj_3)
+                                        {
+
+
+                                            Console.WriteLine("\nIndex Num: " + staffObjectIndexNumber_3);
+
+                                            string staffFName = staffListObjects[staffObjectIndexNumber_3].getFirstName();
+                                            string staffLName = staffListObjects[staffObjectIndexNumber_3].getLastName();
+                                            string staffDob = staffListObjects[staffObjectIndexNumber_3].getDob();
+
+                                            Console.WriteLine("Staff Name: " + staffFName + " " + staffLName);
+
+                                            string jobDescribtion = validator.validateStringInput("Enter Job Describtion: ");
+
+                                            string tempStartDate = validator.validateStringInput("Enter Work Date: ");
+                                            DateTime workDate = DateTime.Parse(tempStartDate);
+
+                                            double hoursWorked = validator.validateDoubleInput("Enter Hours worked: ");
+
+                                            double hourlyPay = validator.validateDoubleInput("Enter Hourly Pay: ");
+
+
+                                            double totalPayment = hoursWorked * hourlyPay;
+
+                                            Console.WriteLine("Total payment made to staff: " + totalPayment);
+
+
+                                            staffJobRecordObject.setJobRecord(staffFName, staffLName, staffDob,
+                                                jobDescribtion, workDate, hoursWorked, hourlyPay, totalPayment);
+
+                                            staffJobRecordList.Add(staffJobRecordObject);
+
+                                            BinaryFormatter bfObject = new BinaryFormatter();
+
+                                            FileStream file = File.Create(staffJobRecordsFileName);
+
+                                            bfObject.Serialize(file, staffJobRecordList);
+
+                                            file.Close();
+
+                                            //If this is first time store Staff Job Records in file then run the below command
+                                            //To load the data from the binary file to Staff List Object
+                                            if (!staffJobRecordsFileNameExists)
+                                            {
+                                                BinaryFormatter bf1 = new BinaryFormatter();
+
+                                                FileStream file1 = File.OpenRead(staffJobRecordsFileName);
+
+                                                staffJobRecordList = (List<StaffJobRecord>)bf1.Deserialize(file1);
+
+                                                file1.Close();
+                                            }
+
+
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("\nSorry, Staff Record not found!");
                                         }
 
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("\nSorry no Staff Job Record found!\n");
-                                    }
-                                    break;
 
-                                //How to find objects from Date range
-                                case 6:
 
-                                    if (weekyJobList.Count > 0)
-                                    {
 
-                                        string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
-                                        string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
+                                        break;
 
-                                        DateTime firstDate = DateTime.Parse(tempFirstDate);
-                                        DateTime secondDate = DateTime.Parse(tempSecondDate);
+                                    case 4:
+                                        //Reading from Binary File
 
-                                        List<StaffWeeklyJob> findStaffRecord = weekyJobList.Where(
-                                            find => find.getWorkDate() >= firstDate && find.getWorkDate() <= secondDate).ToList();
-
-                                        foreach (StaffWeeklyJob staff in findStaffRecord)
+                                        if (staffJobRecordList.Count > 0)
                                         {
-                                            Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                            Console.WriteLine("\nDisplaying Job Record in desending order according to payments made....\n");
+
+                                            List<StaffJobRecord> staffs = staffJobRecordList.OrderByDescending(payment => payment.getPayment()).ToList();
+                                            foreach (StaffJobRecord staff in staffs)
+                                            {
+                                                Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                            }
                                         }
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("\nSorry no Staff Job Record found!\n");
-                                    }
-                                    break;
-
-                                case 7:
-
-
-
-                                    Console.WriteLine("\n*******************\n");
-
-                                    string identifyStaffFirstName_7 = validator.validateStringInput("Enter Staff First Name: ");
-                                    string identifyStaffLastName_7 = validator.validateStringInput("Enter Staff Last Name: ");
-                                    string identifyStaffDob_7 = validator.validateStringInput("Enter Staff Date of Birth: ");
-
-
-                                    int staffObjectIndexNumber_7 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_7,
-                                        identifyStaffLastName_7, identifyStaffDob_7).Item1;
-
-                                    bool foundStaffObj_7 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_7,
-                                        identifyStaffLastName_7, identifyStaffDob_7).Item2;
-
-
-                                    if (foundStaffObj_7)
-                                    {
-                                        string updatedFirstName, updatedLastName, updatedPhoneNumber,
-                                        updatedEmailAddress, updatedAddress, updatedDateOfBirth,
-                                        updatedGender, updatedNInumber;
-
-                                        //Console.WriteLine("Staff Index Number: " + staffObjectIndexNumber);
-
-                                        Console.WriteLine("\nShowing selected Staff Record details....\n");
-
-                                        Console.WriteLine(staffListObjects[staffObjectIndexNumber_7].displayStaffDetails());
-
-                                        int choice = 0;
-
-
-                                        Console.WriteLine("\nSelect Any option to update Staff Record...\n");
-
-                                        Console.WriteLine("1. Update First Name");
-                                        Console.WriteLine("2. Update Last Name");
-                                        Console.WriteLine("3. Update Phone Number");
-                                        Console.WriteLine("4. Update Email Address");
-                                        Console.WriteLine("5. Update Address");
-                                        Console.WriteLine("6. Update Gender");
-                                        Console.WriteLine("7. Update Date of Birth");
-                                        Console.WriteLine("8. Update National Insurance Number\n");
-
-                                        choice = validator.validateIntegerInput("option: ");
-
-                                        while (choice != 1 && choice != 2 && choice != 3 && choice != 4 &&
-                                            choice != 5 && choice != 6 && choice != 7 && choice != 8)
+                                        else
                                         {
-                                            Console.WriteLine("Invalid Input!, please enter enter your option again!");
+                                            Console.WriteLine("\nSorry no Staff Job Record found!\n");
+                                        }
+
+
+
+
+
+                                        break;
+
+                                    //Total Payment of Made to Staff
+                                    case 5:
+
+                                        if (staffJobRecordList.Count > 0)
+                                        {
+
+                                            double totalPaymentMadeToStaff = 0;
+                                            bool foundStaffRecord = false;
+
+                                            string identifyStaffFirstName_5 = validator.validateStringInput("Enter Staff First Name: ");
+                                            string identifyStaffLastName_5 = validator.validateStringInput("Enter Staff Last Name: ");
+                                            string identifyStaffDob_5 = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+                                            Console.WriteLine();
+
+                                            for (int i = 0; i < staffJobRecordList.Count; i++)
+                                            {
+                                                if (identifyStaffFirstName_5 == staffJobRecordList[i].getFirstName() &&
+                                                    identifyStaffLastName_5 == staffJobRecordList[i].getLastName() &&
+                                                    identifyStaffDob_5 == staffJobRecordList[i].getDob())
+                                                {
+                                                    Console.WriteLine(staffJobRecordList[i].displayStaffWeekyJobRecord());
+                                                    totalPaymentMadeToStaff += staffJobRecordList[i].getPayment();
+                                                    foundStaffRecord = true;
+                                                }
+
+                                            }
+                                            if (foundStaffRecord)
+                                            {
+                                                Console.WriteLine("\nTotal Payment Made to " + identifyStaffFirstName_5 +
+                                                   " " + identifyStaffLastName_5 + " : " + totalPaymentMadeToStaff);
+
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("Sorry, No Staff Record found!");
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("\nSorry no Staff Job Record found!\n");
+                                        }
+                                        break;
+
+                                    //How to find objects from Date range
+                                    case 6:
+
+                                        if (staffJobRecordList.Count > 0)
+                                        {
+
+                                            string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
+                                            string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
+
+                                            DateTime firstDate = DateTime.Parse(tempFirstDate);
+                                            DateTime secondDate = DateTime.Parse(tempSecondDate);
+
+                                            List<StaffJobRecord> findStaffRecord = staffJobRecordList.Where(
+                                                find => find.getWorkDate() >= firstDate && find.getWorkDate() <= secondDate).ToList();
+
+                                            foreach (StaffJobRecord staff in findStaffRecord)
+                                            {
+                                                Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("\nSorry no Staff Job Record found!\n");
+                                        }
+                                        break;
+
+                                    case 7:
+
+
+
+                                        Console.WriteLine("\n*******************\n");
+
+                                        string identifyStaffFirstName_7 = validator.validateStringInput("Enter Staff First Name: ");
+                                        string identifyStaffLastName_7 = validator.validateStringInput("Enter Staff Last Name: ");
+                                        string identifyStaffDob_7 = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+
+                                        int staffObjectIndexNumber_7 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_7,
+                                            identifyStaffLastName_7, identifyStaffDob_7).Item1;
+
+                                        bool foundStaffObj_7 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_7,
+                                            identifyStaffLastName_7, identifyStaffDob_7).Item2;
+
+
+                                        if (foundStaffObj_7)
+                                        {
+                                            string updatedFirstName, updatedLastName, updatedPhoneNumber,
+                                            updatedEmailAddress, updatedAddress, updatedDateOfBirth,
+                                            updatedGender, updatedNInumber;
+
+                                            //Console.WriteLine("Staff Index Number: " + staffObjectIndexNumber);
+
+                                            Console.WriteLine("\nShowing selected Staff Record details....\n");
+
+                                            Console.WriteLine(staffListObjects[staffObjectIndexNumber_7].displayStaffDetails());
+
+                                            int choice = 0;
+
+
+                                            Console.WriteLine("\nSelect Any option to update Staff Record...\n");
+
+                                            Console.WriteLine("1. Update First Name");
+                                            Console.WriteLine("2. Update Last Name");
+                                            Console.WriteLine("3. Update Phone Number");
+                                            Console.WriteLine("4. Update Email Address");
+                                            Console.WriteLine("5. Update Address");
+                                            Console.WriteLine("6. Update Gender");
+                                            Console.WriteLine("7. Update Date of Birth");
+                                            Console.WriteLine("8. Update National Insurance Number\n");
+
                                             choice = validator.validateIntegerInput("option: ");
-                                        }
 
-                                        switch (choice)
-                                        {
-                                            case 1:
+                                            while (choice != 1 && choice != 2 && choice != 3 && choice != 4 &&
+                                                choice != 5 && choice != 6 && choice != 7 && choice != 8)
+                                            {
+                                                Console.WriteLine("Invalid Input!, please enter enter your option again!");
+                                                choice = validator.validateIntegerInput("option: ");
+                                            }
 
-                                                updatedFirstName = validator.validateStringInput("Enter updated Staff First Name: ");
-                                                staffListObjects[staffObjectIndexNumber_7].setFirstName(updatedFirstName);
+                                            switch (choice)
+                                            {
+                                                case 1:
 
-                                                break;
+                                                    updatedFirstName = validator.validateStringInput("Enter updated Staff First Name: ");
+                                                    staffListObjects[staffObjectIndexNumber_7].setFirstName(updatedFirstName);
 
-                                            case 2:
+                                                    break;
 
-                                                updatedLastName = validator.validateStringInput("Enter updated Staff Last Name: ");
-                                                staffListObjects[staffObjectIndexNumber_7].setLastName(updatedLastName);
+                                                case 2:
 
-                                                break;
+                                                    updatedLastName = validator.validateStringInput("Enter updated Staff Last Name: ");
+                                                    staffListObjects[staffObjectIndexNumber_7].setLastName(updatedLastName);
 
-                                            case 3:
+                                                    break;
 
-                                                updatedPhoneNumber = validator.validateStringInput("Enter updated Phone Number: ");
+                                                case 3:
 
-                                                while (!validator.checkPhoneNumber(updatedPhoneNumber))
-                                                {
-                                                    Console.WriteLine("Please include valid UK number!");
-                                                    updatedPhoneNumber = validator.validateStringInput("Enter updated Phone Number: ");
-                                                }
+                                                    updatedPhoneNumber = validator.validatePhoneNumber("Enter updated Phone Number: ");
+                                                    staffListObjects[staffObjectIndexNumber_7].setPhoneNumber(updatedPhoneNumber);
 
-                                                staffListObjects[staffObjectIndexNumber_7].setPhoneNumber(updatedPhoneNumber);
+                                                    break;
 
-                                                break;
+                                                case 4:
 
-                                            case 4:
+                                                    updatedEmailAddress = validator.validateStringInput("Enter updated Email Address: ");
+                                                    staffListObjects[staffObjectIndexNumber_7].setEmailAddress(updatedEmailAddress);
 
-                                                updatedEmailAddress = validator.validateStringInput("Enter updated Email Address: ");
-                                                staffListObjects[staffObjectIndexNumber_7].setEmailAddress(updatedEmailAddress);
+                                                    break;
 
-                                                break;
+                                                case 5:
 
-                                            case 5:
 
+                                                    do
+                                                    {
+                                                        updatedAddress = validator.validateStringInput("Enter updated Address: ");
 
-                                                do
-                                                {
-                                                    updatedAddress = validator.validateStringInput("Enter updated Address: ");
+                                                    } while (new EmailAddressAttribute().IsValid(updatedAddress) == false);
 
-                                                } while (new EmailAddressAttribute().IsValid(updatedAddress) == false);
+                                                    staffListObjects[staffObjectIndexNumber_7].setAddress(updatedAddress);
 
-                                                staffListObjects[staffObjectIndexNumber_7].setAddress(updatedAddress);
+                                                    break;
 
-                                                break;
+                                                case 6:
 
-                                            case 6:
+                                                    updatedGender = validator.validateStringInput("Enter updated gender: ");
+                                                    staffListObjects[staffObjectIndexNumber_7].setGender(updatedGender);
 
-                                                updatedGender = validator.validateStringInput("Enter updated gender: ");
-                                                staffListObjects[staffObjectIndexNumber_7].setGender(updatedGender);
+                                                    break;
+                                                case 7:
 
-                                                break;
-                                            case 7:
+                                                    updatedDateOfBirth = validator.validateDateOfBirth("Enter updated Date of Birth: ");
 
-                                                updatedDateOfBirth = validator.validateStringInput("Enter updated Date of Birth: ");
+                                                    staffListObjects[staffObjectIndexNumber_7].setDob(updatedDateOfBirth);
 
-                                                while (!validator.checkDob(updatedDateOfBirth))
-                                                {
-                                                    Console.WriteLine("\nPlease enter a valid Birthdate like (dd/mm/yyyy) or (dd-mm-yyy) !\n");
-                                                    updatedDateOfBirth = validator.validateStringInput("Enter updated Date of Birth: ");
-                                                }
+                                                    break;
+                                                case 8:
 
-                                                staffListObjects[staffObjectIndexNumber_7].setDob(updatedDateOfBirth);
+                                                    updatedNInumber = validator.validateNationalInsuranceNumber("Enter updated National Insurance Number: ");
 
-                                                break;
-                                            case 8:
+                                                    staffListObjects[staffObjectIndexNumber_7].setNInumber(updatedNInumber);
 
-                                                updatedNInumber = validator.validateStringInput("Enter updated National Insurance Number: ");
+                                                    break;
 
-                                                while (!validator.checkNINumber(updatedNInumber))
-                                                {
-                                                    Console.WriteLine("Please input valid National Insurance number!");
-                                                    updatedNInumber = validator.validateStringInput("Enter updated National Insurance Number: ");
+                                            }
 
-                                                }
 
-                                                staffListObjects[staffObjectIndexNumber_7].setNInumber(updatedNInumber);
 
-                                                break;
+                                            Console.WriteLine("\nNew Staff Record has been updated successfully!");
+                                            Console.WriteLine(staffListObjects[staffObjectIndexNumber_7].displayStaffDetails());
 
-                                        }
-
-
-
-                                        Console.WriteLine("\nNew Staff Record has been updated successfully!");
-                                        Console.WriteLine(staffListObjects[staffObjectIndexNumber_7].displayStaffDetails());
-
-                                        Console.WriteLine("\nTesting...\n");
-                                        StreamWriter writeToFile = new StreamWriter("staffDetails.txt");
-
-                                        for (int x = 0; x < staffListObjects.Count; x++)
-                                        {
-                                            Console.WriteLine(staffListObjects[x].displayStaffDetails());
-
-                                            writeToFile.Write(staffListObjects[x].displayStaffDetails());
-                                        }
-
-                                        writeToFile.Close();
-
-                                        Console.WriteLine("\nTaking you back to main menu...\n");
-
-                                        //Save the new list objects into a file
-                                        //Delete all list objects
-                                        //Read all the staff records from the file and store into a list
-
-                                    }
-
-                                    else
-                                    {
-                                        Console.WriteLine("\nSorry, Staff Record Not found! ");
-                                    }
-                                    break;
-
-                                case 8:
-
-                                    //Deleting staff Records
-                                    Console.WriteLine();
-
-                                    string indentifyStaffFirstName_8 = validator.validateStringInput("Enter Staff First Name: ");
-                                    string identifyStaffLastName_8 = validator.validateStringInput("Enter Staff Last Name: ");
-                                    string identifyStaffDob_8 = validator.validateStringInput("Enter Staff Date of Birth: ");
-
-
-                                    int staffObjectIndexNum_8 = newStaffMember.getStaffRecord(staffListObjects, indentifyStaffFirstName_8,
-                                        identifyStaffLastName_8, identifyStaffDob_8).Item1;
-
-                                    bool foundStaffObj_8 = newStaffMember.getStaffRecord(staffListObjects, indentifyStaffFirstName_8,
-                                        identifyStaffLastName_8, identifyStaffDob_8).Item2;
-
-                                    for (int i = 0; i < staffListObjects.Count; i++)
-                                    {
-                                        if (indentifyStaffFirstName_8 == staffListObjects[i].getFirstName() &&
-                                            identifyStaffLastName_8 == staffListObjects[i].getLastName() &&
-                                            identifyStaffDob_8 == staffListObjects[i].getDob())
-                                        {
-                                            staffObjectIndexNum_8 = i;
-                                            foundStaffObj_8 = true;
-                                        }
-                                    }
-
-
-                                    if (foundStaffObj_8)
-                                    {
-                                        Console.WriteLine("Staff Index Number: " + staffObjectIndexNum_8);
-
-                                        Console.WriteLine("\nShowing selected Staff Record...\n");
-
-                                        Console.WriteLine(staffListObjects[staffObjectIndexNum_8].displayStaffDetails());
-
-                                        string removeStaffRecord = validator.validateStringInput("Are you sure," +
-                                            " you want to delete the selected Staff Record (yes/no): ");
-
-                                        if (removeStaffRecord == "yes")
-                                        {
-
-
-                                            staffListObjects.RemoveAt(staffObjectIndexNum_8);
-
-                                            Console.WriteLine("Above Staff Record has been deleted! ");
-
-                                            //Overwriting the staff record data since a record has been deleted from Staff List
-
-
-                                            Console.WriteLine("\nOverriding staff records.......\n");
-
-                                            StreamWriter writeToFile1 = new StreamWriter("staffDetails.txt");
-
-                                            Console.WriteLine("Total Staff Records: " + staffListObjects.Count);
+                                            Console.WriteLine("\nTesting...\n");
+                                            StreamWriter writeToFile = new StreamWriter("staffDetails.txt");
 
                                             for (int x = 0; x < staffListObjects.Count; x++)
                                             {
                                                 Console.WriteLine(staffListObjects[x].displayStaffDetails());
 
-                                                writeToFile1.Write(staffListObjects[x].displayStaffDetails());
+                                                writeToFile.Write(staffListObjects[x].displayStaffDetails());
                                             }
 
-                                            writeToFile1.Close();
+                                            writeToFile.Close();
+
+                                            Console.WriteLine("\nTaking you back to main menu...\n");
+
+                                            //Save the new list objects into a file
+                                            //Delete all list objects
+                                            //Read all the staff records from the file and store into a list
 
                                         }
-                                        else if (removeStaffRecord == "no")
+
+                                        else
                                         {
-                                            Console.WriteLine("\nCancelled Deletion of Staff Record!\n");
+                                            Console.WriteLine("\nSorry, Staff Record Not found! ");
+                                        }
+                                        break;
+
+                                    case 8:
+
+                                        //Deleting staff Records
+                                        Console.WriteLine();
+
+                                        string indentifyStaffFirstName_8 = validator.validateStringInput("Enter Staff First Name: ");
+                                        string identifyStaffLastName_8 = validator.validateStringInput("Enter Staff Last Name: ");
+                                        string identifyStaffDob_8 = validator.validateStringInput("Enter Staff Date of Birth: ");
+
+
+                                        int staffObjectIndexNum_8 = newStaffMember.getStaffRecord(staffListObjects, indentifyStaffFirstName_8,
+                                            identifyStaffLastName_8, identifyStaffDob_8).Item1;
+
+                                        bool foundStaffObj_8 = newStaffMember.getStaffRecord(staffListObjects, indentifyStaffFirstName_8,
+                                            identifyStaffLastName_8, identifyStaffDob_8).Item2;
+
+                                        for (int i = 0; i < staffListObjects.Count; i++)
+                                        {
+                                            if (indentifyStaffFirstName_8 == staffListObjects[i].getFirstName() &&
+                                                identifyStaffLastName_8 == staffListObjects[i].getLastName() &&
+                                                identifyStaffDob_8 == staffListObjects[i].getDob())
+                                            {
+                                                staffObjectIndexNum_8 = i;
+                                                foundStaffObj_8 = true;
+                                            }
+                                        }
+
+
+                                        if (foundStaffObj_8)
+                                        {
+                                            Console.WriteLine("Staff Index Number: " + staffObjectIndexNum_8);
+
+                                            Console.WriteLine("\nShowing selected Staff Record...\n");
+
+                                            Console.WriteLine(staffListObjects[staffObjectIndexNum_8].displayStaffDetails());
+
+                                            string removeStaffRecord = validator.validateStringInput("Are you sure," +
+                                                " you want to delete the selected Staff Record (yes/no): ");
+
+                                            if (removeStaffRecord == "yes")
+                                            {
+
+
+                                                staffListObjects.RemoveAt(staffObjectIndexNum_8);
+
+                                                Console.WriteLine("Above Staff Record has been deleted! ");
+
+                                                //Overwriting the staff record data since a record has been deleted from Staff List
+
+
+                                                Console.WriteLine("\nOverriding staff records.......\n");
+
+                                                StreamWriter writeToFile1 = new StreamWriter("staffDetails.txt");
+
+                                                Console.WriteLine("Total Staff Records: " + staffListObjects.Count);
+
+                                                for (int x = 0; x < staffListObjects.Count; x++)
+                                                {
+                                                    Console.WriteLine(staffListObjects[x].displayStaffDetails());
+
+                                                    writeToFile1.Write(staffListObjects[x].displayStaffDetails());
+                                                }
+
+                                                writeToFile1.Close();
+
+                                            }
+                                            else if (removeStaffRecord == "no")
+                                            {
+                                                Console.WriteLine("\nCancelled Deletion of Staff Record!\n");
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("\nWrong Input!\n");
+                                            }
+
+
+                                        }
+
+                                        else
+                                        {
+                                            Console.WriteLine("Sorry, Staff Record Not found! ");
+                                        }
+
+                                        break;
+
+                                    case 9:
+
+                                        username = validator.validateStringInput("Enter username: ");
+
+                                        password = validator.validateStringInput("Enter Password: ");
+                                        //password = Console.ReadLine();
+
+
+                                        if (readLoginDetails(loginDetailsFileName, username, password).Item1)
+                                        {
+
+                                            OverrideOrCreateLoginFile(validator, loginDetailsFileName);
+
                                         }
                                         else
                                         {
-                                            Console.WriteLine("\nWrong Input!\n");
+                                            Console.WriteLine("Sorry, username and password does not match!");
                                         }
 
-
-                                    }
-
-                                    else
-                                    {
-                                        Console.WriteLine("Sorry, Staff Record Not found! ");
-                                    }
-
-                                    break;
-
-                                case 9:
-
-                                    username = validator.validateStringInput("Enter username: ");
-
-                                    password = validator.validateStringInput("Enter Password: ");
-                                    //password = Console.ReadLine();
+                                        break;
+                                    default:
+                                        Console.WriteLine("Invalid Input, Please try again!");
+                                        break;
 
 
-                                    if (readLoginDetails(loginDetailsFileName, username, password).Item1)
-                                    {
-
-                                        OverrideOrCreateLoginFile(validator, loginDetailsFileName);
-
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Sorry, username and password does not match!");
-                                    }
-
-                                    break;
-                                default:
-                                    Console.WriteLine("Invalid Input, Please try again!");
-                                    break;
+                                }
 
 
-                            }
+                            } while (staffManagementOptions != 0);
 
-
-                        } while (staffManagementOptions != 0);
-
-                        exitProgam = false;
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nUsername or Password doesn't match, Try again!");
-                        attempts++;
-                        Console.WriteLine("Login Attempt number: " + attempts);
-
-                        if (attempts == maxAttempts)
-                        {
-                            Console.WriteLine("\nSorry your maximum login attemps is breached!\n");
-                            Console.WriteLine("Closing Program...!");
                             exitProgam = false;
+
                         }
-                    }
+                        else
+                        {
+                            Console.WriteLine("\nUsername or Password doesn't match, Try again!");
+                            attempts++;
+                            Console.WriteLine("Login Attempt number: " + attempts);
 
-                } while (exitProgam);
+                            if (attempts == maxAttempts)
+                            {
+                                Console.WriteLine("\nSorry your maximum login attemps is breached!\n");
+                                Console.WriteLine("Closing Program...!");
+                                exitProgam = false;
+                            }
+                        }
+
+                    } while (exitProgam);
+
+
+                }
+
+
+                else
+                {
+                    Console.WriteLine("Cannot Procced Login file doesn't exits!");
+
+                }
 
 
             }
-
-
-            else
-            {
-                Console.WriteLine("Cannot Procced Login file doesn't exits!");
-
-            }
-
-
-        }
             Console.WriteLine("\nClosing Program...");
 
             Console.ReadKey();
