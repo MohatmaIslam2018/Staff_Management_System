@@ -50,6 +50,29 @@ namespace Staff_Management_System
             return this.customerFirstName + "," + this.customerLastName + "," +
                 this.customerPhoneNumber + "," + this.emailAddress + "\n";
         }
+
+        public (int, bool) getCustomerRecord(List<Customer> customerList, string identifyCustomerFirstName,
+            string identifyCustomerLastName, string identifyCustomerPhoneNumber)
+        {
+
+            int customerObjectIndexNumber = 0;
+            bool foundCustomerObj = false;
+
+
+            for (int i = 0; i < customerList.Count; i++)
+            {
+                if (identifyCustomerFirstName == customerList[i].getCustomerFirstName() &&
+                    identifyCustomerLastName == customerList[i].getCustomerLastName() &&
+                    identifyCustomerPhoneNumber == customerList[i].getCustomerPhoneNumber())
+                {
+                    customerObjectIndexNumber = i;
+                    foundCustomerObj = true;
+                }
+            }
+
+
+            return (customerObjectIndexNumber, foundCustomerObj);
+        }
     }
 
     [Serializable]
@@ -58,29 +81,36 @@ namespace Staff_Management_System
     {
         private string bookingDate;
         private string typeOfService;
+        private double price;
         private bool serviceCompleted;
-        private double paymentMade;
+        
+        public bool getServiceCompleted()
+        {
+            return this.serviceCompleted;
+        }
 
         public void setBookingDetail(string customerFirstName, string customerLastName,
             string customerPhoneNumber, string bookingDate, string typeOfService,
-            bool serviceCompleted, double paymentMade)
+            double price, bool serviceCompleted)
         {
             this.customerFirstName = customerFirstName;
             this.customerLastName = customerLastName;
             this.customerPhoneNumber = customerPhoneNumber;
             this.bookingDate = bookingDate;
             this.typeOfService = typeOfService;
+            this.price = price;
             this.serviceCompleted = serviceCompleted;
-            this.paymentMade = paymentMade;
         }
 
         public string displayBookingDetails()
         {
             return this.customerFirstName + "," + this.customerLastName + "," +
                 this.customerPhoneNumber + "," + this.bookingDate + "," +
-                this.typeOfService + "," + this.serviceCompleted + "," +
-                this.paymentMade + "\n";
+                this.typeOfService + ",";
         }
+
+
+
     }
 
     [Serializable]
@@ -304,7 +334,7 @@ namespace Staff_Management_System
                 catch
                 {
                     if (userInput == "")
-                        Console.Write("This field cannot be empty");
+                        Console.Write("This field cannot be empty: ");
                     else
                         Console.Write("Sorry, float number is accepted, please try again: ");
                 }
@@ -538,7 +568,7 @@ namespace Staff_Management_System
             Console.WriteLine("\n1. Create New Customer Detail");
             Console.WriteLine("2. View all Customer Details");
             Console.WriteLine("3. Make a Booking for a Customer");
-            Console.WriteLine("4. Complete Booking");
+            //Console.WriteLine("4. Complete Booking");
             Console.WriteLine("4. View all Bookings");
             Console.WriteLine("5. View Bookings with date range");
             Console.WriteLine("6. Cancel Booking");
@@ -563,30 +593,46 @@ namespace Staff_Management_System
             if (initialOption == 1)
             {
 
-                Customer customerObject = new Customer();
-                Booking bookingObject = new Booking();
-
                 List<Customer> customerList = new List<Customer>();
                 List<Booking> bookingList = new List<Booking>();
 
+                string bookingRecordsFileName = "bookingRecords.dat";
                 string customerRecordFileName = "customerDetails.dat";
                 bool customerDetailsFileNameExists = false;
+                bool bookingRecordsFileNameExists = false;
 
                 if (File.Exists(customerRecordFileName))
                 {
                     BinaryFormatter bf1 = new BinaryFormatter();
 
-                    FileStream file_1 = File.OpenRead(customerRecordFileName);
+                    FileStream fileStream_1 = File.OpenRead(customerRecordFileName);
 
-                    customerList = (List<Customer>)bf1.Deserialize(file_1);
+                    customerList = (List<Customer>)bf1.Deserialize(fileStream_1);
 
-                    file_1.Close();
+                    fileStream_1.Close();
 
                     customerDetailsFileNameExists = true;
+
+                }
+
+                if (File.Exists(bookingRecordsFileName))
+                {
+                    BinaryFormatter bf2 = new BinaryFormatter();
+
+                    FileStream fileStream_2 = File.OpenRead(bookingRecordsFileName);
+
+                    bookingList = (List<Booking>)bf2.Deserialize(fileStream_2);
+
+                    fileStream_2.Close();
+
+                    bookingRecordsFileNameExists = true;
+
                 }
 
                 do
                 {
+                    Customer customerObject = new Customer();
+                    Booking bookingObject = new Booking();
 
                     displayAppointmentManagementMenu();
 
@@ -614,13 +660,13 @@ namespace Staff_Management_System
 
                             customerList.Add(customerObject);
 
-                            BinaryFormatter bfObject = new BinaryFormatter();
+                            BinaryFormatter bfObject_1 = new BinaryFormatter();
 
-                            FileStream file = File.Create(customerRecordFileName);
+                            FileStream file_1 = File.Create(customerRecordFileName);
 
-                            bfObject.Serialize(file, customerList);
+                            bfObject_1.Serialize(file_1, customerList);
 
-                            file.Close();
+                            file_1.Close();
 
                             Console.WriteLine("\nCustomer Details has been successfully recorded!\n");
 
@@ -660,17 +706,98 @@ namespace Staff_Management_System
 
                         case 3:
                             //Create new Customer Booking
+                            bool serviceCompleted = false;
+
+                            Console.WriteLine("\nEnter Register Customer Details to book an appointment...\n");
+
+                            string identifyCustomerFirstName_1 = validator.validateStringInput("Enter Customer First Name: ");
+                            string identifyCustomerLastName_1 = validator.validateStringInput("Enter Customer Last Name: ");
+                            string identifyCustomerDob_1 = validator.validatePhoneNumber("Enter Customer Phone Number: ");
+
+
+                            int CustomerObjectIndexNumber_1 = customerObject.getCustomerRecord(customerList, identifyCustomerFirstName_1,
+                            identifyCustomerLastName_1, identifyCustomerDob_1).Item1;
+
+
+                            bool foundStaffObj_3 = customerObject.getCustomerRecord(customerList, identifyCustomerFirstName_1,
+                            identifyCustomerLastName_1, identifyCustomerDob_1).Item2;
+
+                            if (foundStaffObj_3)
+                            {
+                                string customerFirstName_1 = customerList[CustomerObjectIndexNumber_1].getCustomerFirstName();
+                                string customerLastName_1 = customerList[CustomerObjectIndexNumber_1].getCustomerLastName();
+                                string customerPhoneNumber_1 = customerList[CustomerObjectIndexNumber_1].getCustomerPhoneNumber();
+
+                                Console.WriteLine("Customer First Name: " + customerFirstName_1);
+                                Console.WriteLine("Customer Last Name Name: " + customerLastName_1);
+                                Console.WriteLine("Customer Phone Number: " + customerPhoneNumber_1);
+
+                                string bookingDate = validator.validateDateOfBirth("Enter booking Date: ");
+                                string typeOfService = validator.validateStringInput("Enter type of service: ");
+                                double price = validator.validateDoubleInput("Price for the service: ");
+
+                                bookingObject.setBookingDetail(customerFirstName_1, customerLastName_1, customerPhoneNumber_1,
+                                    bookingDate, typeOfService, price, serviceCompleted);
+
+                                bookingList.Add(bookingObject);
+
+                                BinaryFormatter bfObject_2 = new BinaryFormatter();
+
+                                FileStream file_2 = File.Create(bookingRecordsFileName);
+
+                                bfObject_2.Serialize(file_2, bookingList);
+
+                                file_2.Close();
+
+                                if (!bookingRecordsFileNameExists)
+                                {
+                                    BinaryFormatter bfObject_3 = new BinaryFormatter();
+
+                                    FileStream file_3 = File.OpenRead(bookingRecordsFileName);
+
+                                    bookingList = (List<Booking>)bfObject_3.Deserialize(file_3);
+
+                                    file_3.Close();
+                                }
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("No customer Details found!");
+                            }
 
                             break;
 
                         case 4:
                             //Complete Booking
 
+
                             break;
 
                         case 5:
                             //View All Customer Bookings
+                            if (bookingList.Count > 0)
+                            {
+                                foreach (Booking booking in bookingList)
+                                {
+                                    Console.Write(booking.displayBookingDetails());
 
+                                    if (booking.getServiceCompleted())
+                                    {
+                                        Console.Write("Completed");
+                                    }
+                                    else{
+                                        Console.Write("Not Complete");
+
+                                    }
+
+                                    Console.WriteLine();
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Sorry, No booknig records found!");
+                            }
                             break;
 
                         case 6:
@@ -876,7 +1003,7 @@ namespace Staff_Management_System
 
                                     case 3:
 
-
+                                        Console.WriteLine("\nEnter registered Staff Details to book a Job Shift...\n");
 
 
                                         string identifyStaffFirstName_3 = validator.validateStringInput("Enter Staff First Name: ");
