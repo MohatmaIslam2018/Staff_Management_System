@@ -79,19 +79,25 @@ namespace Staff_Management_System
 
     class Booking : Customer
     {
-        private string bookingDate;
+        private DateTime bookingDate;
         private string typeOfService;
         private double price;
-        private bool serviceCompleted;
-        
-        public bool getServiceCompleted()
+        private string serviceCompleted;
+
+        public DateTime getBookingDate()
         {
-            return this.serviceCompleted;
+            return this.bookingDate = bookingDate;
         }
 
+        public void setSeriveCompleted(string serviceCompleted)
+        {
+            this.serviceCompleted = serviceCompleted;
+        }
+        
+
         public void setBookingDetail(string customerFirstName, string customerLastName,
-            string customerPhoneNumber, string bookingDate, string typeOfService,
-            double price, bool serviceCompleted)
+            string customerPhoneNumber, DateTime bookingDate, string typeOfService,
+            double price, string serviceCompleted)
         {
             this.customerFirstName = customerFirstName;
             this.customerLastName = customerLastName;
@@ -105,8 +111,8 @@ namespace Staff_Management_System
         public string displayBookingDetails()
         {
             return this.customerFirstName + "," + this.customerLastName + "," +
-                this.customerPhoneNumber + "," + this.bookingDate + "," +
-                this.typeOfService + ",";
+                this.customerPhoneNumber + "," + this.bookingDate.Date + "," +
+                this.typeOfService + "," + this.serviceCompleted;
         }
 
 
@@ -547,6 +553,7 @@ namespace Staff_Management_System
 
         }
 
+
         public static void displayStaffManagementMenu()
         {
             Console.WriteLine("\n1. Create New Staff Detail");
@@ -571,7 +578,7 @@ namespace Staff_Management_System
             //Console.WriteLine("4. Complete Booking");
             Console.WriteLine("4. View all Bookings");
             Console.WriteLine("5. View Bookings with date range");
-            Console.WriteLine("6. Cancel Booking");
+            Console.WriteLine("6. Complete or Cancel Booking");
             Console.WriteLine("0. Exit Program!");
 
         }
@@ -706,7 +713,7 @@ namespace Staff_Management_System
 
                         case 3:
                             //Create new Customer Booking
-                            bool serviceCompleted = false;
+                            string serviceCompleted = "Not Complete";
 
                             Console.WriteLine("\nEnter Register Customer Details to book an appointment...\n");
 
@@ -719,25 +726,21 @@ namespace Staff_Management_System
                             identifyCustomerLastName_1, identifyCustomerDob_1).Item1;
 
 
-                            bool foundStaffObj_3 = customerObject.getCustomerRecord(customerList, identifyCustomerFirstName_1,
+                            bool foundCustomerObj_1 = customerObject.getCustomerRecord(customerList, identifyCustomerFirstName_1,
                             identifyCustomerLastName_1, identifyCustomerDob_1).Item2;
 
-                            if (foundStaffObj_3)
+                            if (foundCustomerObj_1)
                             {
-                                string customerFirstName_1 = customerList[CustomerObjectIndexNumber_1].getCustomerFirstName();
-                                string customerLastName_1 = customerList[CustomerObjectIndexNumber_1].getCustomerLastName();
-                                string customerPhoneNumber_1 = customerList[CustomerObjectIndexNumber_1].getCustomerPhoneNumber();
+                                Console.WriteLine("\nPlease enter Booking Details...\n");
 
-                                Console.WriteLine("Customer First Name: " + customerFirstName_1);
-                                Console.WriteLine("Customer Last Name Name: " + customerLastName_1);
-                                Console.WriteLine("Customer Phone Number: " + customerPhoneNumber_1);
-
-                                string bookingDate = validator.validateDateOfBirth("Enter booking Date: ");
+                                string bookingDate_temp = validator.validateDateOfBirth("Enter booking Date: ");
                                 string typeOfService = validator.validateStringInput("Enter type of service: ");
                                 double price = validator.validateDoubleInput("Price for the service: ");
 
-                                bookingObject.setBookingDetail(customerFirstName_1, customerLastName_1, customerPhoneNumber_1,
-                                    bookingDate, typeOfService, price, serviceCompleted);
+                                DateTime bookingDate = DateTime.Parse(bookingDate_temp);
+
+                                bookingObject.setBookingDetail(identifyCustomerFirstName_1, identifyCustomerLastName_1,
+                                    identifyCustomerDob_1, bookingDate, typeOfService, price, serviceCompleted);
 
                                 bookingList.Add(bookingObject);
 
@@ -769,27 +772,16 @@ namespace Staff_Management_System
                             break;
 
                         case 4:
-                            //Complete Booking
-
-
-                            break;
-
-                        case 5:
                             //View All Customer Bookings
                             if (bookingList.Count > 0)
                             {
-                                foreach (Booking booking in bookingList)
+                                Console.WriteLine("\nDisplaying Bookings in Assending order by Booking Date...\n");
+
+                                List<Booking> bookings = bookingList.OrderByDescending(Lastestdate => Lastestdate.getBookingDate()).ToList();
+
+                                foreach (Booking booking in bookings)
                                 {
-                                    Console.Write(booking.displayBookingDetails());
-
-                                    if (booking.getServiceCompleted())
-                                    {
-                                        Console.Write("Completed");
-                                    }
-                                    else{
-                                        Console.Write("Not Complete");
-
-                                    }
+                                    Console.WriteLine(booking.displayBookingDetails());
 
                                     Console.WriteLine();
                                 }
@@ -798,12 +790,89 @@ namespace Staff_Management_System
                             {
                                 Console.WriteLine("Sorry, No booknig records found!");
                             }
+
+                            break;
+
+                        case 5:
+                            //View All Customer Bookings with DateRange
+
+
+                            string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
+                            string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
+
+                            DateTime firstDate = DateTime.Parse(tempFirstDate);
+                            DateTime secondDate = DateTime.Parse(tempSecondDate);
+
+                            List<Booking> findCusomerBookingRecord = bookingList.Where(
+                                find => find.getBookingDate() >= firstDate && find.getBookingDate() <= secondDate).ToList();
+
+                            if(bookingList.Count > 0)
+                            {
+                                foreach (Booking cutomerBooking in findCusomerBookingRecord)
+                                {
+                                    Console.WriteLine(cutomerBooking.displayBookingDetails());
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("No Booking found, in this date range!");
+                            }
+
+                            
+
                             break;
 
                         case 6:
-                            //Cancel Booking
+                            //Complete Booking Or Cancel Booking
 
+                            Console.WriteLine("\nEnter Register Customer Details to Complete or Cancel Booking...\n");
+
+                            string identifyCustomerFirstName_2 = validator.validateStringInput("Enter Customer First Name: ");
+                            string identifyCustomerLastName_2 = validator.validateStringInput("Enter Customer Last Name: ");
+                            string identifyCustomerDob_2 = validator.validatePhoneNumber("Enter Customer Phone Number: ");
+
+
+                            int BookingObjectIndexNumber_2 = bookingObject.getCustomerRecord(customerList, identifyCustomerFirstName_2,
+                            identifyCustomerLastName_2, identifyCustomerDob_2).Item1;
+
+
+                            bool foundCustomerObj_3 = bookingObject.getCustomerRecord(customerList, identifyCustomerFirstName_2,
+                            identifyCustomerLastName_2, identifyCustomerDob_2).Item2;
+
+                            if (foundCustomerObj_3)
+                            {
+                                Console.WriteLine("\nWould you like to Complete Booking or Cancel Booking:");
+                                Console.WriteLine("1. Complete Booking");
+                                Console.WriteLine("2. Cancel Booking");
+
+                                int modifyBookingOption = validator.validateIntegerInput("\nEnter Option: ");
+
+                                if(modifyBookingOption == 1)
+                                {
+                                    bookingList[BookingObjectIndexNumber_2].setSeriveCompleted("Completed");
+                                    Console.WriteLine("Booking has been Completed!");
+                                }
+                                
+                                else if(modifyBookingOption == 2)
+                                {
+                                    bookingList.RemoveAt(BookingObjectIndexNumber_2);
+                                    Console.WriteLine("Customer Booking has been Cancelled!");
+
+
+                                }
+
+                                else
+                                {
+                                    Console.WriteLine("Sorry, wrong input!");
+                                }
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("No customer Details found!");
+                            }
                             break;
+
                     }
                 } while (bookingManagementOption != 0);
 
