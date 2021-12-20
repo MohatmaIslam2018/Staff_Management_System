@@ -93,7 +93,7 @@ namespace Staff_Management_System
         {
             this.serviceCompleted = serviceCompleted;
         }
-        
+
 
         public void setBookingDetail(string customerFirstName, string customerLastName,
             string customerPhoneNumber, DateTime bookingDate, string typeOfService,
@@ -118,6 +118,25 @@ namespace Staff_Management_System
 
 
     }
+
+    //[Serializable]
+
+    //class Service
+    //{
+    //    private string ServiceType;
+    //    private double Price;
+
+    //    public void setService(string serviceType, double Price)
+    //    {
+    //        this.ServiceType = serviceType;
+    //        this.Price = Price;
+    //    }
+
+    //    public string displaySeriveDetails()
+    //    {
+    //        return this.ServiceType + ": " + this.Price;
+    //    }
+    //}
 
     [Serializable]
 
@@ -575,10 +594,11 @@ namespace Staff_Management_System
             Console.WriteLine("\n1. Create New Customer Detail");
             Console.WriteLine("2. View all Customer Details");
             Console.WriteLine("3. Make a Booking for a Customer");
-            //Console.WriteLine("4. Complete Booking");
             Console.WriteLine("4. View all Bookings");
             Console.WriteLine("5. View Bookings with date range");
             Console.WriteLine("6. Complete or Cancel Booking");
+            Console.WriteLine("7. Add New Service");
+            Console.WriteLine("8. View or Delete service");
             Console.WriteLine("0. Exit Program!");
 
         }
@@ -603,10 +623,16 @@ namespace Staff_Management_System
                 List<Customer> customerList = new List<Customer>();
                 List<Booking> bookingList = new List<Booking>();
 
+                Dictionary<string, double> serviceDictionary = new Dictionary<string, double>();
+                List<string> serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
+
                 string bookingRecordsFileName = "bookingRecords.dat";
                 string customerRecordFileName = "customerDetails.dat";
+                string serviceFilename = "serviceData.dat";
                 bool customerDetailsFileNameExists = false;
                 bool bookingRecordsFileNameExists = false;
+                bool serviceFilenameExists = false;
+
 
                 if (File.Exists(customerRecordFileName))
                 {
@@ -633,6 +659,22 @@ namespace Staff_Management_System
                     fileStream_2.Close();
 
                     bookingRecordsFileNameExists = true;
+
+                }
+
+                if (File.Exists(serviceFilename))
+                {
+                    BinaryFormatter bf3 = new BinaryFormatter();
+
+                    FileStream fileStream_2 = File.OpenRead(serviceFilename);
+
+                    serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
+
+                    serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
+
+                    fileStream_2.Close();
+
+                    serviceFilenameExists = true;
 
                 }
 
@@ -806,7 +848,7 @@ namespace Staff_Management_System
                             List<Booking> findCusomerBookingRecord = bookingList.Where(
                                 find => find.getBookingDate() >= firstDate && find.getBookingDate() <= secondDate).ToList();
 
-                            if(bookingList.Count > 0)
+                            if (bookingList.Count > 0)
                             {
                                 foreach (Booking cutomerBooking in findCusomerBookingRecord)
                                 {
@@ -818,7 +860,7 @@ namespace Staff_Management_System
                                 Console.WriteLine("No Booking found, in this date range!");
                             }
 
-                            
+
 
                             break;
 
@@ -847,13 +889,13 @@ namespace Staff_Management_System
 
                                 int modifyBookingOption = validator.validateIntegerInput("\nEnter Option: ");
 
-                                if(modifyBookingOption == 1)
+                                if (modifyBookingOption == 1)
                                 {
                                     bookingList[BookingObjectIndexNumber_2].setSeriveCompleted("Completed");
                                     Console.WriteLine("Booking has been Completed!");
                                 }
-                                
-                                else if(modifyBookingOption == 2)
+
+                                else if (modifyBookingOption == 2)
                                 {
                                     bookingList.RemoveAt(BookingObjectIndexNumber_2);
                                     Console.WriteLine("Customer Booking has been Cancelled!");
@@ -870,6 +912,131 @@ namespace Staff_Management_System
                             else
                             {
                                 Console.WriteLine("No customer Details found!");
+                            }
+                            break;
+
+                        case 7:
+                            //Creating a new Service
+                            string serviceType = validator.validateStringInput("Enter Service Type: ");
+                            double servicePrice = validator.validateDoubleInput("Enter Price: ");
+
+                            serviceDictionary[serviceType] = servicePrice;
+
+                            BinaryFormatter bf = new BinaryFormatter();
+
+                            FileStream file = File.Create(serviceFilename);
+
+                            bf.Serialize(file, serviceDictionary);
+
+                            file.Close();
+
+                            if (serviceFilenameExists)
+                            {
+                                BinaryFormatter bf3 = new BinaryFormatter();
+
+                                FileStream fileStream_2 = File.OpenRead(serviceFilename);
+
+                                serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
+
+                                serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
+
+                                fileStream_2.Close();
+
+                            }
+
+                            Console.WriteLine("New Service has been added successfully!");
+
+
+                            break;
+                        case 8:
+                            //View or Delete Serivce
+
+                            if (serviceTypeKeysList.Count > 0)
+                            {
+
+
+                                Console.WriteLine("\nEnter your Option....\n");
+
+                                Console.WriteLine("1. View All Services");
+                                Console.WriteLine("2. Delete a Service");
+
+                                int options = validator.validateIntegerInput("\nEnter option: ");
+
+                                if (options == 1)
+                                {
+                                    Console.WriteLine("\nView all the Serivce Types... \n");
+                                    for (int i = 0; i < serviceTypeKeysList.Count; i++)
+                                    {
+                                        Console.WriteLine(i + 1 + ". " + serviceTypeKeysList[i] + ": £ " + serviceDictionary[serviceTypeKeysList[i]]);
+                                    }
+                                }
+
+                                else if (options == 2)
+                                {
+                                    Console.WriteLine("\nViewing all available service types...\n");
+                                    for (int i = 0; i < serviceTypeKeysList.Count; i++)
+                                    {
+                                        Console.WriteLine(i + 1 + ". " + serviceTypeKeysList[i] + ": £ " + serviceDictionary[serviceTypeKeysList[i]]);
+                                    }
+
+                                    //string identifyServiceType = validator.validateStringInput("\nEnter service name: ");
+
+
+
+
+                                    int serviceNumber = validator.validateIntegerInput("\nEnter Service Number to delete: ");
+
+                                    while (serviceNumber < 0 || serviceNumber > serviceTypeKeysList.Count)
+                                    {
+                                        Console.WriteLine("Invalid Input, please try again!");
+                                        serviceNumber = validator.validateIntegerInput("\nEnter Service Number to delete: ");
+                                    }
+
+
+
+
+                                    string storeServiceName = serviceTypeKeysList[serviceNumber - 1];
+
+                                    serviceDictionary.Remove(serviceTypeKeysList[serviceNumber - 1]);
+
+
+                                    Console.WriteLine("\n" + storeServiceName + " removed successfully!");
+
+                                    BinaryFormatter bf_4 = new BinaryFormatter();
+
+                                    FileStream file_4 = File.Create(serviceFilename);
+
+                                    bf_4.Serialize(file_4, serviceDictionary);
+
+                                    file_4.Close();
+
+                                    if (serviceFilenameExists)
+                                    {
+                                        BinaryFormatter bf3 = new BinaryFormatter();
+
+                                        FileStream fileStream_2 = File.OpenRead(serviceFilename);
+
+                                        serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
+
+                                        serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
+
+                                        fileStream_2.Close();
+
+                                    }
+
+                                }
+
+                                else
+                                {
+                                    Console.WriteLine("Invalid Input, Please try again!");
+                                }
+
+                            }
+
+
+                            else
+                            {
+                                Console.WriteLine("No Serivce found!");
                             }
                             break;
 
@@ -1542,6 +1709,12 @@ namespace Staff_Management_System
 
 
             }
+
+            else
+            {
+                Console.WriteLine("\nSorry, Invalid Input!");
+            }
+
             Console.WriteLine("\nClosing Program...");
 
             Console.ReadKey();
