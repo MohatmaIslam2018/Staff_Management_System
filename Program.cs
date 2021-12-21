@@ -47,8 +47,17 @@ namespace Staff_Management_System
 
         public string displayCustomerDetail()
         {
-            return this.customerFirstName + "," + this.customerLastName + "," +
-                this.customerPhoneNumber + "," + this.emailAddress + "\n";
+            string customerDetails = "";
+
+            customerDetails += "First Name: " + this.customerFirstName + "\n";
+            customerDetails += "Last Name: " + this.customerLastName + "\n";
+            customerDetails += "Phone Number: " + this.customerPhoneNumber + "\n";
+            customerDetails += "Email Address: " + this.emailAddress + "\n";
+
+            return customerDetails;
+
+            //return this.customerFirstName + "," + this.customerLastName + "," +
+            //    this.customerPhoneNumber + "," + this.emailAddress + "\n";
         }
 
         public (int, bool) getCustomerRecord(List<Customer> customerList, string identifyCustomerFirstName,
@@ -80,8 +89,8 @@ namespace Staff_Management_System
     class Booking : Customer
     {
         private DateTime bookingDate;
-        private string typeOfService;
-        private double price;
+        private string[] typeOfService;
+        private double totalPrice;
         private string serviceCompleted;
 
         public DateTime getBookingDate()
@@ -96,47 +105,50 @@ namespace Staff_Management_System
 
 
         public void setBookingDetail(string customerFirstName, string customerLastName,
-            string customerPhoneNumber, DateTime bookingDate, string typeOfService,
-            double price, string serviceCompleted)
+            string customerPhoneNumber, DateTime bookingDate, string[] typeOfService,
+            double totalPrice, string serviceCompleted)
         {
             this.customerFirstName = customerFirstName;
             this.customerLastName = customerLastName;
             this.customerPhoneNumber = customerPhoneNumber;
             this.bookingDate = bookingDate;
             this.typeOfService = typeOfService;
-            this.price = price;
+            this.totalPrice = totalPrice;
             this.serviceCompleted = serviceCompleted;
         }
 
+
+
         public string displayBookingDetails()
         {
-            return this.customerFirstName + "," + this.customerLastName + "," +
-                this.customerPhoneNumber + "," + this.bookingDate.Date + "," +
-                this.typeOfService + "," + this.serviceCompleted;
+            string displayString = "";
+
+            displayString += "First Name: " + this.customerFirstName + "\n";
+            displayString += "Last Name: " + this.customerLastName + "\n";
+            displayString += "Phone Number: " + this.customerPhoneNumber + "\n";
+            displayString += "Booking Date: " + this.bookingDate.ToShortDateString() + "\n";
+            displayString += "Total Price: £ " + this.totalPrice + "\n\nSelected Services...\n\n";
+
+
+
+            //displayString = this.customerFirstName + "," + this.customerLastName + "," +
+            //    this.customerPhoneNumber + "," + this.bookingDate.ToShortDateString() + "," +
+            //    this.totalPrice + "," + this.serviceCompleted + "\n\nSelected Services...\n";
+            
+            foreach(string service in typeOfService)
+            {
+                displayString += service + "\n";
+            }
+
+            displayString += "Status: " + this.serviceCompleted + "\n\n";
+
+
+            return displayString;
         }
 
 
 
     }
-
-    //[Serializable]
-
-    //class Service
-    //{
-    //    private string ServiceType;
-    //    private double Price;
-
-    //    public void setService(string serviceType, double Price)
-    //    {
-    //        this.ServiceType = serviceType;
-    //        this.Price = Price;
-    //    }
-
-    //    public string displaySeriveDetails()
-    //    {
-    //        return this.ServiceType + ": " + this.Price;
-    //    }
-    //}
 
     [Serializable]
 
@@ -224,6 +236,22 @@ namespace Staff_Management_System
                 this.dateOfBirth + "," + this.NInumber + "\n";
         }
 
+        public string displayStaffRecords()
+        {
+            string staffRecord = "";
+
+            staffRecord += "First Name: " + this.staffFirstName + "\n";
+            staffRecord += "Last Name: " + this.staffLastName + "\n";
+            staffRecord += "Phone Number: " + this.phoneNumber + "\n";
+            staffRecord += "Email Address: " + this.emailAddress + "\n";
+            staffRecord += "Address: " + this.address + "\n";
+            staffRecord += "Gender: " + this.gender + "\n";
+            staffRecord += "Date of Birth: " + this.dateOfBirth + "\n";
+            staffRecord += "National Insurance Number: " + this.NInumber + "\n";
+
+            return staffRecord;
+        }
+
         public (int, bool) getStaffRecord(List<Staff> staffListObjects, string identifyStaffFirstName,
             string identifyStaffLastName, string identifyStaffDob)
         {
@@ -308,12 +336,28 @@ namespace Staff_Management_System
         }
 
 
-        public string displayStaffWeekyJobRecord()
-        {
-            return this.staffFirstName + "," + this.staffLastName + "," + this.dateOfBirth + "," +
-                this.JobDescribtion + "," + this.workDate.ToShortDateString() + "," +
-                this.hoursWorked + "," + this.hourlyPay + "," + this.payment + "\n";
+        //public string displayStaffWeekyJobRecord()
+        //{
+        //    return this.staffFirstName + "," + this.staffLastName + "," + this.dateOfBirth + "," +
+        //        this.JobDescribtion + "," + this.workDate.ToShortDateString() + "," +
+        //        this.hoursWorked + "," + this.hourlyPay + "," + this.payment + "\n";
 
+        //}
+
+        public string displayStaffWeekyJobRecords()
+        {
+            string records = "";
+
+            records += "First Name: " + this.staffFirstName + "\n";
+            records += "Last Name: " + this.staffLastName + "\n";
+            records += "Date of Birth: " + this.dateOfBirth + "\n";
+            records += "Job Describtion: " + this.JobDescribtion + "\n";
+            records += "Work Date: " + this.workDate.ToShortDateString() + "\n";
+            records += "Hours Worked: " + this.hoursWorked + "\n";
+            records += "Horly Pay: " + this.hourlyPay + "\n";
+            records += "Payment Made: " + this.payment + "\n";
+
+            return records;
         }
 
     }
@@ -389,7 +433,7 @@ namespace Staff_Management_System
 
 
 
-        public string validateDateOfBirth(string stringInput)
+        public string validateDate(string stringInput)
         {
             string dobPattern = @"^\d{2}?(/)?\d{2}?(/)?\d{4}$";
 
@@ -410,7 +454,7 @@ namespace Staff_Management_System
                 }
                 else if (!dobRegex.IsMatch(dobString))
                 {
-                    Console.WriteLine("Please enter a valid Birth Date like (01/01/2021)....");
+                    Console.WriteLine("Please enter a valid Date like (01/01/2021)....");
                 }
 
             } while (dobString == "" || !dobRegex.IsMatch(dobString));
@@ -614,8 +658,11 @@ namespace Staff_Management_System
 
             Console.WriteLine("\n1. Store Customer Details and manage booking");
             Console.WriteLine("2. Admin Panel - Staff Management");
+            Console.WriteLine("0. Exit Program");
 
             int initialOption = validator.validateIntegerInput("\nEnter your option: ");
+
+            Console.WriteLine();
 
             if (initialOption == 1)
             {
@@ -629,6 +676,7 @@ namespace Staff_Management_System
                 string bookingRecordsFileName = "bookingRecords.dat";
                 string customerRecordFileName = "customerDetails.dat";
                 string serviceFilename = "serviceData.dat";
+
                 bool customerDetailsFileNameExists = false;
                 bool bookingRecordsFileNameExists = false;
                 bool serviceFilenameExists = false;
@@ -685,8 +733,7 @@ namespace Staff_Management_System
 
                     displayAppointmentManagementMenu();
 
-                    Console.Write("\nEnter you option: ");
-                    bookingManagementOption = int.Parse(Console.ReadLine());
+                    bookingManagementOption = validator.validateIntegerInput("\nEnter you option: ");
 
                     Console.WriteLine();
 
@@ -775,14 +822,55 @@ namespace Staff_Management_System
                             {
                                 Console.WriteLine("\nPlease enter Booking Details...\n");
 
-                                string bookingDate_temp = validator.validateDateOfBirth("Enter booking Date: ");
-                                string typeOfService = validator.validateStringInput("Enter type of service: ");
-                                double price = validator.validateDoubleInput("Price for the service: ");
-
+                                string bookingDate_temp = validator.validateDate("Enter booking Date: ");
                                 DateTime bookingDate = DateTime.Parse(bookingDate_temp);
 
+                                
+
+
+                                Console.WriteLine("\nViewing all available service types...\n");
+
+                                int serviceNumber = -1;
+                                double totalPrice = 0;
+                                int indexNum = 0;
+
+                                string[] services = new string[serviceTypeKeysList.Count];
+
+                                do
+                                {
+
+
+                                    for (int i = 0; i < serviceTypeKeysList.Count; i++)
+                                    {
+                                        Console.WriteLine(i + 1 + ". " + serviceTypeKeysList[i] + ": £ " + serviceDictionary[serviceTypeKeysList[i]]);
+                                    }
+
+                                    serviceNumber = validator.validateIntegerInput("\nEnter Service number to add service or Press 0 to exit: ");
+
+                                    while (serviceNumber < 0 || serviceNumber > serviceTypeKeysList.Count)
+                                    {
+                                        Console.WriteLine("Invalid Input, please try again!");
+                                        serviceNumber = validator.validateIntegerInput("\nEnter Service number to add service or Press 0 to exit: ");
+                                    }
+
+                                    if (serviceNumber > 0)
+                                    {
+
+                                        string storeServiceName = serviceTypeKeysList[serviceNumber - 1];
+
+                                        services[indexNum] = storeServiceName;
+
+                                        totalPrice += serviceDictionary[serviceTypeKeysList[serviceNumber - 1]];
+
+                                        indexNum++;
+                                    }
+
+                                } while (serviceNumber != 0);
+
+
+
                                 bookingObject.setBookingDetail(identifyCustomerFirstName_1, identifyCustomerLastName_1,
-                                    identifyCustomerDob_1, bookingDate, typeOfService, price, serviceCompleted);
+                                    identifyCustomerDob_1, bookingDate, services, totalPrice, serviceCompleted);
 
                                 bookingList.Add(bookingObject);
 
@@ -805,6 +893,8 @@ namespace Staff_Management_System
                                     file_3.Close();
                                 }
 
+                                Console.WriteLine("\nA Booking has been successfully made!\n");
+
                             }
                             else
                             {
@@ -819,13 +909,11 @@ namespace Staff_Management_System
                             {
                                 Console.WriteLine("\nDisplaying Bookings in Assending order by Booking Date...\n");
 
-                                List<Booking> bookings = bookingList.OrderByDescending(Lastestdate => Lastestdate.getBookingDate()).ToList();
+                                List<Booking> bookings = bookingList.OrderBy(Lastestdate => Lastestdate.getBookingDate()).ToList();
 
                                 foreach (Booking booking in bookings)
                                 {
-                                    Console.WriteLine(booking.displayBookingDetails());
-
-                                    Console.WriteLine();
+                                    Console.Write(booking.displayBookingDetails());
                                 }
                             }
                             else
@@ -978,12 +1066,6 @@ namespace Staff_Management_System
                                     {
                                         Console.WriteLine(i + 1 + ". " + serviceTypeKeysList[i] + ": £ " + serviceDictionary[serviceTypeKeysList[i]]);
                                     }
-
-                                    //string identifyServiceType = validator.validateStringInput("\nEnter service name: ");
-
-
-
-
                                     int serviceNumber = validator.validateIntegerInput("\nEnter Service Number to delete: ");
 
                                     while (serviceNumber < 0 || serviceNumber > serviceTypeKeysList.Count)
@@ -1141,14 +1223,7 @@ namespace Staff_Management_System
 
 
                                 staffManagementOptions = validator.validateIntegerInput("\nEnter option: ");
-                                //option = int.Parse(Console.ReadLine());
-
-                                //use robust function for this purpose
-                                while (staffManagementOptions < 0 || staffManagementOptions > 9)
-                                {
-                                    Console.WriteLine("Wrong Input! ");
-
-                                }
+                                
 
                                 switch (staffManagementOptions)
                                 {
@@ -1181,7 +1256,7 @@ namespace Staff_Management_System
                                         gender = validator.validateStringInput("Enter gender: ");
                                         //gender = Console.ReadLine();
 
-                                        dateOfBirth = validator.validateDateOfBirth("Enter Date of Birth: ");
+                                        dateOfBirth = validator.validateDate("Enter Date of Birth: ");
 
 
                                         ///// Your National Insurance number is 9 digits long and starts
@@ -1193,7 +1268,7 @@ namespace Staff_Management_System
 
                                         Console.WriteLine("\nNew staff Record has been added!");
 
-                                        Console.WriteLine(newStaffMember.displayStaffDetails() + "\n");
+                                        Console.WriteLine(newStaffMember.displayStaffRecords() + "\n");
 
                                         File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
 
@@ -1226,7 +1301,7 @@ namespace Staff_Management_System
                                             for (int x = 0; x < staffListObjects.Count; x++)
                                             {
 
-                                                Console.WriteLine(staffListObjects[x].displayStaffDetails());
+                                                Console.WriteLine(staffListObjects[x].displayStaffRecords());
 
                                             }
 
@@ -1328,7 +1403,7 @@ namespace Staff_Management_System
                                             List<StaffJobRecord> staffs = staffJobRecordList.OrderByDescending(payment => payment.getPayment()).ToList();
                                             foreach (StaffJobRecord staff in staffs)
                                             {
-                                                Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                                Console.WriteLine(staff.displayStaffWeekyJobRecords());
                                             }
                                         }
                                         else
@@ -1363,7 +1438,7 @@ namespace Staff_Management_System
                                                     identifyStaffLastName_5 == staffJobRecordList[i].getLastName() &&
                                                     identifyStaffDob_5 == staffJobRecordList[i].getDob())
                                                 {
-                                                    Console.WriteLine(staffJobRecordList[i].displayStaffWeekyJobRecord());
+                                                    Console.WriteLine(staffJobRecordList[i].displayStaffWeekyJobRecords());
                                                     totalPaymentMadeToStaff += staffJobRecordList[i].getPayment();
                                                     foundStaffRecord = true;
                                                 }
@@ -1404,7 +1479,7 @@ namespace Staff_Management_System
 
                                             foreach (StaffJobRecord staff in findStaffRecord)
                                             {
-                                                Console.WriteLine(staff.displayStaffWeekyJobRecord());
+                                                Console.WriteLine(staff.displayStaffWeekyJobRecords());
                                             }
                                         }
                                         else
@@ -1517,7 +1592,7 @@ namespace Staff_Management_System
                                                     break;
                                                 case 7:
 
-                                                    updatedDateOfBirth = validator.validateDateOfBirth("Enter updated Date of Birth: ");
+                                                    updatedDateOfBirth = validator.validateDate("Enter updated Date of Birth: ");
 
                                                     staffListObjects[staffObjectIndexNumber_7].setDob(updatedDateOfBirth);
 
@@ -1668,6 +1743,8 @@ namespace Staff_Management_System
                                         }
 
                                         break;
+                                    case 0:
+                                        break;
                                     default:
                                         Console.WriteLine("Invalid Input, Please try again!");
                                         break;
@@ -1710,7 +1787,7 @@ namespace Staff_Management_System
 
             }
 
-            else
+            else if(initialOption != 0)
             {
                 Console.WriteLine("\nSorry, Invalid Input!");
             }
