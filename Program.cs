@@ -776,6 +776,45 @@ namespace Staff_Management_System
 
         }
 
+
+        public static List<Staff> loadAndSaveStaffDataToList(string staffDetailsFileName,
+        List<Staff> staffList, bool serializeData)
+        {
+            //Checking if we need Serialize to Deserialize first
+
+            //If serializeData is equals to true then Serialize Staff Data
+            if (!serializeData)
+
+            {
+
+                BinaryFormatter bfObject = new BinaryFormatter();
+
+                FileStream file = File.Create(staffDetailsFileName);
+
+                bfObject.Serialize(file, staffList);
+
+                file.Close();
+
+            }
+
+            //if serializeData is equals to false then Deserialize Staff Data
+            else
+            {
+
+                BinaryFormatter bf1 = new BinaryFormatter();
+
+                FileStream file1 = File.OpenRead(staffDetailsFileName);
+
+                staffList = (List<Staff>)bf1.Deserialize(file1);
+
+                file1.Close();
+            }
+
+            return staffList;
+
+
+        }
+
         public static List<StaffJobRecord> loadAndSaveStaffJobRecordDataToList(string staffJobRecordsFileName,
             List<StaffJobRecord> staffJobRecordList, bool serializeData)
         {
@@ -936,7 +975,6 @@ namespace Staff_Management_System
                             }
 
 
-
                             break;
 
                         case 3:
@@ -1055,7 +1093,6 @@ namespace Staff_Management_System
                         case 5:
                             //View All Customer Bookings with DateRange
 
-
                             string tempFirstDate = validator.validateStringInput("Enter First Date range: ");
                             string tempSecondDate = validator.validateStringInput("Enter Second Date range: ");
 
@@ -1082,6 +1119,7 @@ namespace Staff_Management_System
                             break;
 
                         case 6:
+
                             //Complete Booking Or Cancel Booking
 
                             Console.WriteLine("\nEnter Register Customer Details to Complete or Cancel Booking...\n");
@@ -1116,8 +1154,6 @@ namespace Staff_Management_System
                                 {
                                     bookingList.RemoveAt(BookingObjectIndexNumber_2);
                                     Console.WriteLine("Customer Booking has been Cancelled!");
-
-
                                 }
 
                                 else
@@ -1161,7 +1197,6 @@ namespace Staff_Management_System
                             if (serviceTypeKeysList.Count > 0)
                             {
 
-
                                 Console.WriteLine("\nEnter your Option....\n");
 
                                 Console.WriteLine("1. View All Services");
@@ -1192,8 +1227,6 @@ namespace Staff_Management_System
                                         Console.WriteLine("Invalid Input, please try again!");
                                         serviceNumber = validator.validateIntegerInput("\nEnter Service Number to delete: ");
                                     }
-
-
 
 
                                     string storeServiceName = serviceTypeKeysList[serviceNumber - 1];
@@ -1242,6 +1275,8 @@ namespace Staff_Management_System
                 string password;
                 int attempts = 0;
                 int maxAttempts = 0;
+                string staffDetailsFileName = "staffDetails.dat";
+                bool staffDetailsFileNameExists = false;
                 string staffJobRecordsFileName = "staffJobRecords.dat";
                 bool staffJobRecordsFileNameExists = false;
 
@@ -1250,13 +1285,20 @@ namespace Staff_Management_System
 
                 Staff staffObj = new Staff();
 
-                List<Staff> staffListObjects = new List<Staff>();
+                List<Staff> staffList = new List<Staff>();
 
 
                 StaffJobRecord staffJobRecordObject = new StaffJobRecord();
 
                 List<StaffJobRecord> staffJobRecordList = new List<StaffJobRecord>();
 
+                if (File.Exists(staffDetailsFileName))
+                {
+                    staffList = loadAndSaveStaffDataToList(staffDetailsFileName, staffList, true);
+
+                    staffDetailsFileNameExists = true;
+
+                }
 
 
                 if (File.Exists(staffJobRecordsFileName))
@@ -1310,9 +1352,6 @@ namespace Staff_Management_System
 
                             int staffManagementOptions = -1;
 
-                            staffObj.storeStaffRecordInList(staffListObjects);
-
-
 
                             do
                             {
@@ -1332,7 +1371,7 @@ namespace Staff_Management_System
                                         emailAddress, address, dateOfBirth, gender, NInumber;
 
 
-                                        Console.WriteLine("\nEnter Staff Details...\n");
+                                        Console.WriteLine("\nEnter Staff Details to make new Staff Record...\n");
 
                                         firstName = validator.validateStringInput("Enter first Name: ");
 
@@ -1346,10 +1385,8 @@ namespace Staff_Management_System
 
 
                                         address = validator.validateStringInput("Enter home address: ");
-                                        //address = Console.ReadLine();
 
                                         gender = validator.validateStringInput("Enter gender: ");
-                                        //gender = Console.ReadLine();
 
                                         dateOfBirth = validator.validateDate("Enter Date of Birth: ");
 
@@ -1361,26 +1398,19 @@ namespace Staff_Management_System
                                         newStaffMember.setStaffDetails(firstName, lastName, phoneNumber,
                                             emailAddress, address, gender, dateOfBirth, NInumber);
 
-                                        Console.WriteLine("\nNew staff Record has been added!");
+                                        staffList.Add(newStaffMember);
 
-                                        Console.WriteLine(newStaffMember.displayStaffRecords() + "\n");
-
-                                        File.AppendAllText("staffDetails.txt", newStaffMember.displayStaffDetails());
-
-                                        Console.WriteLine("\nTotal Records in the List (Before Deletiong): " + staffListObjects.Count);
+                                        loadAndSaveStaffDataToList(staffDetailsFileName, staffList, false);
 
 
-                                        staffListObjects.Clear();
+                                        Console.WriteLine("\nStaff Details has been successfully recorded!\n");
 
-                                        Console.WriteLine("\nTotal Records in the List (After Deletion): " + staffListObjects.Count);
+                                        //If this is first time storing Customer Details in file load Customer data in Customer List
+                                        if (!staffDetailsFileNameExists)
+                                        {
+                                            staffList = loadAndSaveStaffDataToList(staffDetailsFileName, staffList, true);
 
-                                        //Loading the newly added staff records into the staff List
-                                        staffObj.storeStaffRecordInList(staffListObjects);
-
-                                        Console.WriteLine("\nTotal Records in the List (Reading from file): " + staffListObjects.Count);
-
-
-                                        Console.WriteLine("you are good to go!");
+                                        }
 
 
                                         break;
@@ -1388,15 +1418,15 @@ namespace Staff_Management_System
                                     case 2:
 
                                         //Displaying all staff records
-                                        if (staffListObjects.Count > 0)
+                                        if (staffList.Count > 0)
                                         {
 
                                             Console.WriteLine();
 
-                                            for (int x = 0; x < staffListObjects.Count; x++)
+                                            for (int x = 0; x < staffList.Count; x++)
                                             {
 
-                                                Console.WriteLine(staffListObjects[x].displayStaffRecords());
+                                                Console.WriteLine(staffList[x].displayStaffRecords());
 
                                             }
 
@@ -1417,10 +1447,10 @@ namespace Staff_Management_System
                                         string identifyStaffDob_3 = validator.validateStringInput("Enter Staff Date of Birth: ");
 
 
-                                        int staffObjectIndexNumber_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
+                                        int staffObjectIndexNumber_3 = staffJobRec.getStaffRecord(staffList, identifyStaffFirstName_3,
                                             identifyStaffLastName_3, identifyStaffDob_3).Item1;
 
-                                        bool foundStaffObj_3 = staffJobRec.getStaffRecord(staffListObjects, identifyStaffFirstName_3,
+                                        bool foundStaffObj_3 = staffJobRec.getStaffRecord(staffList, identifyStaffFirstName_3,
                                             identifyStaffLastName_3, identifyStaffDob_3).Item2;
 
                                         if (foundStaffObj_3)
@@ -1429,9 +1459,9 @@ namespace Staff_Management_System
 
                                             Console.WriteLine("\nIndex Num: " + staffObjectIndexNumber_3);
 
-                                            string staffFName = staffListObjects[staffObjectIndexNumber_3].getFirstName();
-                                            string staffLName = staffListObjects[staffObjectIndexNumber_3].getLastName();
-                                            string staffDob = staffListObjects[staffObjectIndexNumber_3].getDob();
+                                            string staffFName = staffList[staffObjectIndexNumber_3].getFirstName();
+                                            string staffLName = staffList[staffObjectIndexNumber_3].getLastName();
+                                            string staffDob = staffList[staffObjectIndexNumber_3].getDob();
 
                                             Console.WriteLine("Staff Name: " + staffFName + " " + staffLName);
 
@@ -1494,10 +1524,6 @@ namespace Staff_Management_System
                                         {
                                             Console.WriteLine("\nSorry no Staff Job Record found!\n");
                                         }
-
-
-
-
 
                                         break;
 
@@ -1576,17 +1602,17 @@ namespace Staff_Management_System
 
 
 
-                                        Console.WriteLine("\n*******************\n");
+                                        Console.WriteLine("\nPlease Enter Staff Details to Update Details...\n");
 
                                         string identifyStaffFirstName_7 = validator.validateStringInput("Enter Staff First Name: ");
                                         string identifyStaffLastName_7 = validator.validateStringInput("Enter Staff Last Name: ");
                                         string identifyStaffDob_7 = validator.validateStringInput("Enter Staff Date of Birth: ");
 
 
-                                        int staffObjectIndexNumber_7 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_7,
+                                        int staffObjectIndexNumber_7 = newStaffMember.getStaffRecord(staffList, identifyStaffFirstName_7,
                                             identifyStaffLastName_7, identifyStaffDob_7).Item1;
 
-                                        bool foundStaffObj_7 = newStaffMember.getStaffRecord(staffListObjects, identifyStaffFirstName_7,
+                                        bool foundStaffObj_7 = newStaffMember.getStaffRecord(staffList, identifyStaffFirstName_7,
                                             identifyStaffLastName_7, identifyStaffDob_7).Item2;
 
 
@@ -1600,7 +1626,7 @@ namespace Staff_Management_System
 
                                             Console.WriteLine("\nShowing selected Staff Record details....\n");
 
-                                            Console.WriteLine(staffListObjects[staffObjectIndexNumber_7].displayStaffDetails());
+                                            Console.WriteLine(staffList[staffObjectIndexNumber_7].displayStaffDetails());
 
                                             int choice = 0;
 
@@ -1630,28 +1656,28 @@ namespace Staff_Management_System
                                                 case 1:
 
                                                     updatedFirstName = validator.validateStringInput("Enter updated Staff First Name: ");
-                                                    staffListObjects[staffObjectIndexNumber_7].setFirstName(updatedFirstName);
+                                                    staffList[staffObjectIndexNumber_7].setFirstName(updatedFirstName);
 
                                                     break;
 
                                                 case 2:
 
                                                     updatedLastName = validator.validateStringInput("Enter updated Staff Last Name: ");
-                                                    staffListObjects[staffObjectIndexNumber_7].setLastName(updatedLastName);
+                                                    staffList[staffObjectIndexNumber_7].setLastName(updatedLastName);
 
                                                     break;
 
                                                 case 3:
 
                                                     updatedPhoneNumber = validator.validatePhoneNumber("Enter updated Phone Number: ");
-                                                    staffListObjects[staffObjectIndexNumber_7].setPhoneNumber(updatedPhoneNumber);
+                                                    staffList[staffObjectIndexNumber_7].setPhoneNumber(updatedPhoneNumber);
 
                                                     break;
 
                                                 case 4:
 
                                                     updatedEmailAddress = validator.validateStringInput("Enter updated Email Address: ");
-                                                    staffListObjects[staffObjectIndexNumber_7].setEmailAddress(updatedEmailAddress);
+                                                    staffList[staffObjectIndexNumber_7].setEmailAddress(updatedEmailAddress);
 
                                                     break;
 
@@ -1659,28 +1685,28 @@ namespace Staff_Management_System
 
                                                     updatedAddress = validator.validateEmailAddress("Enter updated Address: ");
 
-                                                    staffListObjects[staffObjectIndexNumber_7].setAddress(updatedAddress);
+                                                    staffList[staffObjectIndexNumber_7].setAddress(updatedAddress);
 
                                                     break;
 
                                                 case 6:
 
                                                     updatedGender = validator.validateStringInput("Enter updated gender: ");
-                                                    staffListObjects[staffObjectIndexNumber_7].setGender(updatedGender);
+                                                    staffList[staffObjectIndexNumber_7].setGender(updatedGender);
 
                                                     break;
                                                 case 7:
 
                                                     updatedDateOfBirth = validator.validateDate("Enter updated Date of Birth: ");
 
-                                                    staffListObjects[staffObjectIndexNumber_7].setDob(updatedDateOfBirth);
+                                                    staffList[staffObjectIndexNumber_7].setDob(updatedDateOfBirth);
 
                                                     break;
                                                 case 8:
 
                                                     updatedNInumber = validator.validateNationalInsuranceNumber("Enter updated National Insurance Number: ");
 
-                                                    staffListObjects[staffObjectIndexNumber_7].setNInumber(updatedNInumber);
+                                                    staffList[staffObjectIndexNumber_7].setNInumber(updatedNInumber);
 
                                                     break;
 
@@ -1688,26 +1714,21 @@ namespace Staff_Management_System
 
 
 
+                                            Console.WriteLine(staffList[staffObjectIndexNumber_7].displayStaffDetails());
+
+                                            loadAndSaveStaffDataToList(staffDetailsFileName, staffList, false);
+
                                             Console.WriteLine("\nNew Staff Record has been updated successfully!");
-                                            Console.WriteLine(staffListObjects[staffObjectIndexNumber_7].displayStaffDetails());
 
-                                            Console.WriteLine("\nTesting...\n");
-                                            StreamWriter writeToFile = new StreamWriter("staffDetails.txt");
-
-                                            for (int x = 0; x < staffListObjects.Count; x++)
+                                            //If this is first time storing Customer Details in file load Customer data in Customer List
+                                            if (!staffDetailsFileNameExists)
                                             {
-                                                Console.WriteLine(staffListObjects[x].displayStaffDetails());
+                                                staffList = loadAndSaveStaffDataToList(staffDetailsFileName, staffList, true);
 
-                                                writeToFile.Write(staffListObjects[x].displayStaffDetails());
                                             }
-
-                                            writeToFile.Close();
 
                                             Console.WriteLine("\nTaking you back to main menu...\n");
 
-                                            //Save the new list objects into a file
-                                            //Delete all list objects
-                                            //Read all the staff records from the file and store into a list
 
                                         }
 
@@ -1720,24 +1741,25 @@ namespace Staff_Management_System
                                     case 8:
 
                                         //Deleting staff Records
-                                        Console.WriteLine();
+                                        Console.WriteLine("\nPlease Enter Staff Details to Delete Records...\n");
+
 
                                         string indentifyStaffFirstName_8 = validator.validateStringInput("Enter Staff First Name: ");
                                         string identifyStaffLastName_8 = validator.validateStringInput("Enter Staff Last Name: ");
                                         string identifyStaffDob_8 = validator.validateStringInput("Enter Staff Date of Birth: ");
 
 
-                                        int staffObjectIndexNum_8 = newStaffMember.getStaffRecord(staffListObjects, indentifyStaffFirstName_8,
+                                        int staffObjectIndexNum_8 = newStaffMember.getStaffRecord(staffList, indentifyStaffFirstName_8,
                                             identifyStaffLastName_8, identifyStaffDob_8).Item1;
 
-                                        bool foundStaffObj_8 = newStaffMember.getStaffRecord(staffListObjects, indentifyStaffFirstName_8,
+                                        bool foundStaffObj_8 = newStaffMember.getStaffRecord(staffList, indentifyStaffFirstName_8,
                                             identifyStaffLastName_8, identifyStaffDob_8).Item2;
 
-                                        for (int i = 0; i < staffListObjects.Count; i++)
+                                        for (int i = 0; i < staffList.Count; i++)
                                         {
-                                            if (indentifyStaffFirstName_8 == staffListObjects[i].getFirstName() &&
-                                                identifyStaffLastName_8 == staffListObjects[i].getLastName() &&
-                                                identifyStaffDob_8 == staffListObjects[i].getDob())
+                                            if (indentifyStaffFirstName_8 == staffList[i].getFirstName() &&
+                                                identifyStaffLastName_8 == staffList[i].getLastName() &&
+                                                identifyStaffDob_8 == staffList[i].getDob())
                                             {
                                                 staffObjectIndexNum_8 = i;
                                                 foundStaffObj_8 = true;
@@ -1751,39 +1773,31 @@ namespace Staff_Management_System
 
                                             Console.WriteLine("\nShowing selected Staff Record...\n");
 
-                                            Console.WriteLine(staffListObjects[staffObjectIndexNum_8].displayStaffDetails());
+                                            Console.WriteLine(staffList[staffObjectIndexNum_8].displayStaffDetails());
 
                                             string removeStaffRecord = validator.validateStringInput("Are you sure," +
-                                                " you want to delete the selected Staff Record (yes/no): ");
+                                                " you want to delete the selected Staff Record (y/n): ");
 
-                                            if (removeStaffRecord == "yes")
+                                            if (removeStaffRecord == "y")
                                             {
 
 
-                                                staffListObjects.RemoveAt(staffObjectIndexNum_8);
+                                                staffList.RemoveAt(staffObjectIndexNum_8);
 
-                                                Console.WriteLine("Above Staff Record has been deleted! ");
+                                                loadAndSaveStaffDataToList(staffDetailsFileName, staffList, false);
 
-                                                //Overwriting the staff record data since a record has been deleted from Staff List
+                                                Console.WriteLine("\nAbove Staff Record has been deleted successfully! ");
 
-
-                                                Console.WriteLine("\nOverriding staff records.......\n");
-
-                                                StreamWriter writeToFile1 = new StreamWriter("staffDetails.txt");
-
-                                                Console.WriteLine("Total Staff Records: " + staffListObjects.Count);
-
-                                                for (int x = 0; x < staffListObjects.Count; x++)
+                                                //If this is first time storing Customer Details in file load Customer data in Customer List
+                                                if (!staffDetailsFileNameExists)
                                                 {
-                                                    Console.WriteLine(staffListObjects[x].displayStaffDetails());
+                                                    staffList = loadAndSaveStaffDataToList(staffDetailsFileName, staffList, true);
 
-                                                    writeToFile1.Write(staffListObjects[x].displayStaffDetails());
                                                 }
 
-                                                writeToFile1.Close();
 
                                             }
-                                            else if (removeStaffRecord == "no")
+                                            else if (removeStaffRecord == "n")
                                             {
                                                 Console.WriteLine("\nCancelled Deletion of Staff Record!\n");
                                             }
@@ -1856,13 +1870,11 @@ namespace Staff_Management_System
 
                 }
 
-
                 else
                 {
                     Console.WriteLine("Cannot Procced Login file doesn't exits!");
 
                 }
-
 
             }
 
