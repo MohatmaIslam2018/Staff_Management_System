@@ -1,9 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Linq;
+﻿//All the library used for this project
+using System;
+using System.IO; //File Input and Output Libray
+using System.Collections.Generic; //List and Dictionary library for data collection and manupulation
+using System.Text.RegularExpressions; //Regular Expression library to Check for input validation
+using System.Runtime.Serialization.Formatters.Binary; //Serialization Library to serialize and deserialize data 
+using System.Linq; //Linq Library for querying data
 
 namespace Staff_Management_System
 {
@@ -13,14 +14,26 @@ namespace Staff_Management_System
 
     [Serializable]
 
+    //Customer Class
     class Customer
     {
+        //Defininig fields
         protected string customerFirstName;
         protected string customerLastName;
         protected string customerPhoneNumber;
         private string emailAddress;
 
+        //setter function
+        public void setCustomerDetails(string customerFirstName, string customerLastName,
+            string phoneNumber, string emailAddress)
+        {
+            this.customerFirstName = customerFirstName;
+            this.customerLastName = customerLastName;
+            this.customerPhoneNumber = phoneNumber;
+            this.emailAddress = emailAddress;
+        }
 
+        //Getter function
         public string getCustomerFirstName()
         {
             return this.customerFirstName;
@@ -36,15 +49,7 @@ namespace Staff_Management_System
             return this.customerPhoneNumber;
         }
 
-        public void setCustomerDetails(string customerFirstName, string customerLastName,
-            string phoneNumber, string emailAddress)
-        {
-            this.customerFirstName = customerFirstName;
-            this.customerLastName = customerLastName;
-            this.customerPhoneNumber = phoneNumber;
-            this.emailAddress = emailAddress;
-        }
-
+        //displaying all the customer data
         public string displayCustomerDetail()
         {
             string customerDetails = "";
@@ -56,10 +61,9 @@ namespace Staff_Management_System
 
             return customerDetails;
 
-            //return this.customerFirstName + "," + this.customerLastName + "," +
-            //    this.customerPhoneNumber + "," + this.emailAddress + "\n";
         }
 
+        //Searching for Customer class from List and Retrive back the location of class in the customer List
         public (int, bool) getCustomerRecord(List<Customer> customerList, string identifyCustomerFirstName,
             string identifyCustomerLastName, string identifyCustomerPhoneNumber)
         {
@@ -86,18 +90,22 @@ namespace Staff_Management_System
 
     [Serializable]
 
+    //Using Inheretance to inherit Customer fields and Methods to Booking Class
     class Booking : Customer
     {
+        //Defining fields
         private DateTime bookingDate;
         private string[] typeOfService;
         private double totalPrice;
         private string serviceCompleted;
 
+        //getter methods
         public DateTime getBookingDate()
         {
             return this.bookingDate = bookingDate;
         }
 
+        //setter method
         public void setSeriveCompleted(string serviceCompleted)
         {
             this.serviceCompleted = serviceCompleted;
@@ -118,7 +126,7 @@ namespace Staff_Management_System
         }
 
 
-
+        //A method to display all booking details along with selected services
         public string displayBookingDetails()
         {
             string displayString = "";
@@ -130,12 +138,7 @@ namespace Staff_Management_System
             displayString += "Total Price: £ " + this.totalPrice + "\n\nSelected Services...\n\n";
 
 
-
-            //displayString = this.customerFirstName + "," + this.customerLastName + "," +
-            //    this.customerPhoneNumber + "," + this.bookingDate.ToShortDateString() + "," +
-            //    this.totalPrice + "," + this.serviceCompleted + "\n\nSelected Services...\n";
-            
-            foreach(string service in typeOfService)
+            foreach (string service in typeOfService)
             {
                 displayString += service + "\n";
             }
@@ -152,8 +155,10 @@ namespace Staff_Management_System
 
     [Serializable]
 
+    //Defining Staff Class
     class Staff
     {
+        //Defining fields
         protected string staffFirstName;
         protected string staffLastName;
         private string phoneNumber;
@@ -167,6 +172,8 @@ namespace Staff_Management_System
 
         }
 
+
+        //setter methods
         public void setFirstName(string staffFirstName)
         {
             this.staffFirstName = staffFirstName;
@@ -201,19 +208,6 @@ namespace Staff_Management_System
             this.NInumber = NInumber;
         }
 
-        public string getFirstName()
-        {
-            return this.staffFirstName;
-        }
-        public string getLastName()
-        {
-            return this.staffLastName;
-        }
-        public string getDob()
-        {
-            return this.dateOfBirth;
-        }
-
         public void setStaffDetails(string firstName, string lastName, string phoneNumber,
         string emailAddress, string address, string gender, string dateOfBirth, string NInumber)
         {
@@ -227,7 +221,23 @@ namespace Staff_Management_System
             this.NInumber = NInumber;
         }
 
+        //getter method
+        public string getFirstName()
+        {
+            return this.staffFirstName;
+        }
+        public string getLastName()
+        {
+            return this.staffLastName;
+        }
+        public string getDob()
+        {
+            return this.dateOfBirth;
+        }
 
+
+
+        //A method to store the all staff details in a file
         public string displayStaffDetails()
         {
             return this.staffFirstName + "," + this.staffLastName + "," +
@@ -236,6 +246,7 @@ namespace Staff_Management_System
                 this.dateOfBirth + "," + this.NInumber + "\n";
         }
 
+        //A method to display all the staff details in Console
         public string displayStaffRecords()
         {
             string staffRecord = "";
@@ -252,6 +263,7 @@ namespace Staff_Management_System
             return staffRecord;
         }
 
+        //a function to find staff class from Staff List Object
         public (int, bool) getStaffRecord(List<Staff> staffListObjects, string identifyStaffFirstName,
             string identifyStaffLastName, string identifyStaffDob)
         {
@@ -274,6 +286,7 @@ namespace Staff_Management_System
             return (staffObjectIndexNumber, foundStaffObj);
         }
 
+        //A function to read staff details from file and store them in a list
         public void storeStaffRecordInList(List<Staff> staffListObjects)
         {
             if (File.Exists("staffDetails.txt"))
@@ -302,9 +315,10 @@ namespace Staff_Management_System
     }
 
     [Serializable]
-    //Derived Class inherits Staff class attributes for Staff First Name and Last Name
+    //Using Inheretance to inherit Staff fields and Methods to StaffJobRecord Class
     class StaffJobRecord : Staff
     {
+        //defining fields
         private string JobDescribtion;
         private DateTime workDate;
         private double hoursWorked;
@@ -312,11 +326,7 @@ namespace Staff_Management_System
         private double payment;
 
 
-        public double getPayment()
-        {
-            return this.payment = payment;
-        }
-
+        //setter method
         public void setJobRecord(string staffFirstName, string staffLastName, string dateOfBirth,
             string JobDescribtion, DateTime workDate, double hoursWorked, double hourlyPay, double payment)
         {
@@ -330,20 +340,18 @@ namespace Staff_Management_System
             this.payment = payment;
         }
 
+        //getter method
+        public double getPayment()
+        {
+            return this.payment = payment;
+        }
+
         public DateTime getWorkDate()
         {
             return this.workDate;
         }
 
-
-        //public string displayStaffWeekyJobRecord()
-        //{
-        //    return this.staffFirstName + "," + this.staffLastName + "," + this.dateOfBirth + "," +
-        //        this.JobDescribtion + "," + this.workDate.ToShortDateString() + "," +
-        //        this.hoursWorked + "," + this.hourlyPay + "," + this.payment + "\n";
-
-        //}
-
+        //A method to display Staff WeekyJob Records
         public string displayStaffWeekyJobRecords()
         {
             string records = "";
@@ -362,9 +370,10 @@ namespace Staff_Management_System
 
     }
 
+    //Validation class to validate user input
     class Validator
     {
-
+        //A function to validate Integer value
         public int validateIntegerInput(string userInput)
         {
             Console.Write(userInput);
@@ -389,6 +398,8 @@ namespace Staff_Management_System
 
         }
 
+        //A function to validate Double value
+
         public double validateDoubleInput(string userInput)
         {
             Console.Write(userInput);
@@ -412,6 +423,8 @@ namespace Staff_Management_System
 
         }
 
+        //A function to validate empty string
+
         public string validateStringInput(string stringInput)
         {
             string storeStringInput;
@@ -428,11 +441,14 @@ namespace Staff_Management_System
 
             } while (storeStringInput == "");
 
+            //Trip empty spaces
+            storeStringInput.Trim();
+
             return storeStringInput;
         }
 
 
-
+        //A function to validate date with regex pattern
         public string validateDate(string stringInput)
         {
             string dobPattern = @"^\d{2}?(/)?\d{2}?(/)?\d{4}$";
@@ -463,11 +479,9 @@ namespace Staff_Management_System
 
         }
 
+        //A function to validate Email with regex pattern
         public string validateEmailAddress(string stringInput)
         {
-            string regPatternPhoneNumber = @"^((\+44)|(0))?\d{4}?\d{6}$";
-
-            Regex rg = new Regex(regPatternPhoneNumber);
 
             string emailString;
 
@@ -492,7 +506,7 @@ namespace Staff_Management_System
 
         }
 
-
+        //A function to validate Phone Number with regex pattern
         public string validatePhoneNumber(string stringInput)
         {
             string regPatternPhoneNumber = @"^((\+44)|(0))?\d{4}?\d{6}$";
@@ -521,6 +535,7 @@ namespace Staff_Management_System
             return phoneNumerString;
         }
 
+        //A function to validate National Insurance Number with regex pattern
 
         public string validateNationalInsuranceNumber(string stringInput)
         {
@@ -561,7 +576,7 @@ namespace Staff_Management_System
     class Program
     {
 
-
+        //Get Maximum Login Attempts from Configuration File
         public static int getMaxLoginAttempts(string getInput)
         {
             string[] split = getInput.Split(':');
@@ -572,13 +587,11 @@ namespace Staff_Management_System
 
         }
 
-
+        //Read Login Details from Configuration File
         public static (bool, int) readLoginDetails(string loginDetailsFileName, string userName, string password)
         {
 
-
             StreamReader readLoginFile = new StreamReader(loginDetailsFileName);
-
 
             string usernameFromFile = readLoginFile.ReadLine();
 
@@ -596,7 +609,8 @@ namespace Staff_Management_System
             return (false, storeMaxAttempts);
         }
 
-        public static void OverrideOrCreateLoginFile(Validator validator, string loginDetailsFileName)
+        //Override Configuration File
+        public static void OverrideConfigurationFile(Validator validator, string loginDetailsFileName)
         {
             string updatedUsername = validator.validateStringInput("Enter new username: ");
             string updatedPassword = validator.validateStringInput("Enter new password: ");
@@ -616,7 +630,7 @@ namespace Staff_Management_System
 
         }
 
-
+        //Display Staff Menu for Admin
         public static void displayStaffManagementMenu()
         {
             Console.WriteLine("\n1. Create New Staff Detail");
@@ -628,11 +642,10 @@ namespace Staff_Management_System
             Console.WriteLine("7. Update Staff Record");
             Console.WriteLine("8. Delete Staff Record");
             Console.WriteLine("9. Update Login Details");
-            Console.WriteLine("10. View Total Revenue and Expenses");
             Console.WriteLine("0. Exit Program!");
         }
 
-
+        //Display Customer and Booking menu for Employees
         public static void displayAppointmentManagementMenu()
         {
             Console.WriteLine("\n1. Create New Customer Detail");
@@ -647,6 +660,159 @@ namespace Staff_Management_System
 
         }
 
+        //Loading and Storing Customer Data with Serialization and Deserialization
+        public static List<Customer> loadCustomerDataToList(string customerRecordFileName,
+            List<Customer> customerList, bool serializeData)
+        {
+            //Checking if we need Serialize to Deserialize first
+
+            //If serializeData is equals to true then Serialize Customer Data
+            if (!serializeData)
+
+            {
+
+                BinaryFormatter bfObject_1 = new BinaryFormatter();
+
+                FileStream file_1 = File.Create(customerRecordFileName);
+
+                bfObject_1.Serialize(file_1, customerList);
+
+                file_1.Close();
+
+            }
+
+            //if serializeData is equals to false then Deserialize Customer Data
+            else
+            {
+
+                BinaryFormatter bf1 = new BinaryFormatter();
+
+                FileStream fileStream_1 = File.OpenRead(customerRecordFileName);
+
+                customerList = (List<Customer>)bf1.Deserialize(fileStream_1);
+
+                fileStream_1.Close();
+            }
+
+            return customerList;
+
+
+        }
+
+        public static List<Booking> loadBookingDataToList(string bookingRecordsFileName,
+            List<Booking> bookingList, bool serializeData)
+        {
+            //Checking if we need Serialize to Deserialize first
+
+            //If serializeData is equals to true then Serialize Booking Data
+            if (!serializeData)
+
+            {
+
+                BinaryFormatter bfObject_2 = new BinaryFormatter();
+
+                FileStream file_2 = File.Create(bookingRecordsFileName);
+
+                bfObject_2.Serialize(file_2, bookingList);
+
+                file_2.Close();
+
+            }
+
+            //if serializeData is equals to false then Deserialize Booking Data
+            else
+            {
+
+                BinaryFormatter bf2 = new BinaryFormatter();
+
+                FileStream fileStream_2 = File.OpenRead(bookingRecordsFileName);
+
+                bookingList = (List<Booking>)bf2.Deserialize(fileStream_2);
+
+                fileStream_2.Close();
+            }
+
+            return bookingList;
+
+        }
+
+        public static (Dictionary<string, double>, List<string>) loadServiceDataToDictionaryAndList(string serviceFilename,
+            Dictionary<string, double> serviceDictionary, List<string> serviceTypeKeysList, bool serializeData)
+        {
+            //Checking if we need Serialize to Deserialize first
+
+            //If serializeData is equals to true then Serialize Service Data
+            if (!serializeData)
+
+            {
+
+                BinaryFormatter bf = new BinaryFormatter();
+
+                FileStream file = File.Create(serviceFilename);
+
+                bf.Serialize(file, serviceDictionary);
+
+                file.Close();
+
+            }
+
+            //if serializeData is equals to false then Deserialize Service Data
+            else
+            {
+
+                BinaryFormatter bf3 = new BinaryFormatter();
+
+                FileStream fileStream_2 = File.OpenRead(serviceFilename);
+
+                serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
+
+                serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
+
+                fileStream_2.Close();
+            }
+
+            return (serviceDictionary, serviceTypeKeysList);
+
+
+        }
+
+        public static List<StaffJobRecord> loadAndSaveStaffJobRecordDataToList(string staffJobRecordsFileName,
+            List<StaffJobRecord> staffJobRecordList, bool serializeData)
+        {
+            //Checking if we need Serialize to Deserialize first
+
+            //If serializeData is equals to true then Serialize StaffJobRecord Data
+            if (!serializeData)
+
+            {
+
+                BinaryFormatter bfObject = new BinaryFormatter();
+
+                FileStream file = File.Create(staffJobRecordsFileName);
+
+                bfObject.Serialize(file, staffJobRecordList);
+
+                file.Close();
+
+            }
+
+            //if serializeData is equals to false then Deserialize StaffJobRecord Data
+            else
+            {
+
+                BinaryFormatter bf1 = new BinaryFormatter();
+
+                FileStream file1 = File.OpenRead(staffJobRecordsFileName);
+
+                staffJobRecordList = (List<StaffJobRecord>)bf1.Deserialize(file1);
+
+                file1.Close();
+            }
+
+            return staffJobRecordList;
+
+
+        }
         static void Main()
         {
             int bookingManagementOption = -1;
@@ -684,13 +850,7 @@ namespace Staff_Management_System
 
                 if (File.Exists(customerRecordFileName))
                 {
-                    BinaryFormatter bf1 = new BinaryFormatter();
-
-                    FileStream fileStream_1 = File.OpenRead(customerRecordFileName);
-
-                    customerList = (List<Customer>)bf1.Deserialize(fileStream_1);
-
-                    fileStream_1.Close();
+                    customerList = loadCustomerDataToList(customerRecordFileName, customerList, true);
 
                     customerDetailsFileNameExists = true;
 
@@ -698,13 +858,7 @@ namespace Staff_Management_System
 
                 if (File.Exists(bookingRecordsFileName))
                 {
-                    BinaryFormatter bf2 = new BinaryFormatter();
-
-                    FileStream fileStream_2 = File.OpenRead(bookingRecordsFileName);
-
-                    bookingList = (List<Booking>)bf2.Deserialize(fileStream_2);
-
-                    fileStream_2.Close();
+                    bookingList = loadBookingDataToList(bookingRecordsFileName, bookingList, true);
 
                     bookingRecordsFileNameExists = true;
 
@@ -712,16 +866,12 @@ namespace Staff_Management_System
 
                 if (File.Exists(serviceFilename))
                 {
-                    BinaryFormatter bf3 = new BinaryFormatter();
 
-                    FileStream fileStream_2 = File.OpenRead(serviceFilename);
+                    serviceDictionary = loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary,
+                                serviceTypeKeysList, true).Item1;
 
-                    serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
-
-                    serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
-
-                    fileStream_2.Close();
-
+                    serviceTypeKeysList = loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary,
+                                serviceTypeKeysList, true).Item2;
                     serviceFilenameExists = true;
 
                 }
@@ -756,27 +906,16 @@ namespace Staff_Management_System
 
                             customerList.Add(customerObject);
 
-                            BinaryFormatter bfObject_1 = new BinaryFormatter();
+                            loadCustomerDataToList(customerRecordFileName, customerList, false);
 
-                            FileStream file_1 = File.Create(customerRecordFileName);
-
-                            bfObject_1.Serialize(file_1, customerList);
-
-                            file_1.Close();
 
                             Console.WriteLine("\nCustomer Details has been successfully recorded!\n");
 
-                            //If this is first time storing Customer Details in file then run the below command
-                            //To load the data from the binary file to Customer List Object
+                            //If this is first time storing Customer Details in file load Customer data in Customer List
                             if (!customerDetailsFileNameExists)
                             {
-                                BinaryFormatter bf_2 = new BinaryFormatter();
+                                customerList = loadCustomerDataToList(customerRecordFileName, customerList, true);
 
-                                FileStream file_2 = File.OpenRead(customerRecordFileName);
-
-                                customerList = (List<Customer>)bf_2.Deserialize(file_2);
-
-                                file_2.Close();
                             }
 
                             break;
@@ -825,7 +964,7 @@ namespace Staff_Management_System
                                 string bookingDate_temp = validator.validateDate("Enter booking Date: ");
                                 DateTime bookingDate = DateTime.Parse(bookingDate_temp);
 
-                                
+
 
 
                                 Console.WriteLine("\nViewing all available service types...\n");
@@ -874,23 +1013,13 @@ namespace Staff_Management_System
 
                                 bookingList.Add(bookingObject);
 
-                                BinaryFormatter bfObject_2 = new BinaryFormatter();
+                                loadBookingDataToList(bookingRecordsFileName, bookingList, false);
 
-                                FileStream file_2 = File.Create(bookingRecordsFileName);
-
-                                bfObject_2.Serialize(file_2, bookingList);
-
-                                file_2.Close();
 
                                 if (!bookingRecordsFileNameExists)
                                 {
-                                    BinaryFormatter bfObject_3 = new BinaryFormatter();
+                                    bookingList = loadBookingDataToList(bookingRecordsFileName, bookingList, false);
 
-                                    FileStream file_3 = File.OpenRead(bookingRecordsFileName);
-
-                                    bookingList = (List<Booking>)bfObject_3.Deserialize(file_3);
-
-                                    file_3.Close();
                                 }
 
                                 Console.WriteLine("\nA Booking has been successfully made!\n");
@@ -1010,25 +1139,15 @@ namespace Staff_Management_System
 
                             serviceDictionary[serviceType] = servicePrice;
 
-                            BinaryFormatter bf = new BinaryFormatter();
-
-                            FileStream file = File.Create(serviceFilename);
-
-                            bf.Serialize(file, serviceDictionary);
-
-                            file.Close();
+                            loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary, serviceTypeKeysList, false);
 
                             if (serviceFilenameExists)
                             {
-                                BinaryFormatter bf3 = new BinaryFormatter();
+                                serviceDictionary = loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary,
+                                serviceTypeKeysList, true).Item1;
 
-                                FileStream fileStream_2 = File.OpenRead(serviceFilename);
-
-                                serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
-
-                                serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
-
-                                fileStream_2.Close();
+                                serviceTypeKeysList = loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary,
+                                            serviceTypeKeysList, true).Item2;
 
                             }
 
@@ -1084,26 +1203,15 @@ namespace Staff_Management_System
 
                                     Console.WriteLine("\n" + storeServiceName + " removed successfully!");
 
-                                    BinaryFormatter bf_4 = new BinaryFormatter();
-
-                                    FileStream file_4 = File.Create(serviceFilename);
-
-                                    bf_4.Serialize(file_4, serviceDictionary);
-
-                                    file_4.Close();
+                                    loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary, serviceTypeKeysList, false);
 
                                     if (serviceFilenameExists)
                                     {
-                                        BinaryFormatter bf3 = new BinaryFormatter();
+                                        serviceDictionary = loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary,
+                                        serviceTypeKeysList, true).Item1;
 
-                                        FileStream fileStream_2 = File.OpenRead(serviceFilename);
-
-                                        serviceDictionary = (Dictionary<string, double>)bf3.Deserialize(fileStream_2);
-
-                                        serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
-
-                                        fileStream_2.Close();
-
+                                        serviceTypeKeysList = loadServiceDataToDictionaryAndList(serviceFilename, serviceDictionary,
+                                                    serviceTypeKeysList, true).Item2;
                                     }
 
                                 }
@@ -1140,6 +1248,10 @@ namespace Staff_Management_System
 
                 Staff staffJobRec = new Staff();
 
+                Staff staffObj = new Staff();
+
+                List<Staff> staffListObjects = new List<Staff>();
+
 
                 StaffJobRecord staffJobRecordObject = new StaffJobRecord();
 
@@ -1149,27 +1261,14 @@ namespace Staff_Management_System
 
                 if (File.Exists(staffJobRecordsFileName))
                 {
-                    BinaryFormatter bf_3 = new BinaryFormatter();
-
-                    FileStream file_3 = File.OpenRead(staffJobRecordsFileName);
-
-                    staffJobRecordList = (List<StaffJobRecord>)bf_3.Deserialize(file_3);
-
-                    file_3.Close();
+                    staffJobRecordList = loadAndSaveStaffJobRecordDataToList(staffJobRecordsFileName, staffJobRecordList, true);
 
                     staffJobRecordsFileNameExists = true;
                 }
 
                 bool exitProgam = true;
 
-                Dictionary<string, int> staffDictionaryShift = new Dictionary<string, int>();
-
-                List<string> staffListObjectsShift = new List<string>(staffDictionaryShift.Keys);
-
-
-                List<Staff> staffListObjects = new List<Staff>();
-
-                Staff staffObj = new Staff();
+                
 
 
                 string loginDetailsFileName = "loginDetails.txt";
@@ -1178,7 +1277,7 @@ namespace Staff_Management_System
                 {
                     Console.WriteLine("It looks like Login record does not exits!\n" +
                         "\nInput username and password to continue... \n");
-                    OverrideOrCreateLoginFile(validator, loginDetailsFileName);
+                    OverrideConfigurationFile(validator, loginDetailsFileName);
 
                 }
 
@@ -1223,7 +1322,7 @@ namespace Staff_Management_System
 
 
                                 staffManagementOptions = validator.validateIntegerInput("\nEnter option: ");
-                                
+
 
                                 switch (staffManagementOptions)
                                 {
@@ -1243,11 +1342,7 @@ namespace Staff_Management_System
                                         phoneNumber = validator.validatePhoneNumber("Enter Phone Number: ");
 
 
-                                        do
-                                        {
-                                            emailAddress = validator.validateStringInput("Enter email address: ");
-
-                                        } while (new EmailAddressAttribute().IsValid(emailAddress) == false);
+                                        emailAddress = validator.validateEmailAddress("Enter email address: ");
 
 
                                         address = validator.validateStringInput("Enter home address: ");
@@ -1360,25 +1455,14 @@ namespace Staff_Management_System
 
                                             staffJobRecordList.Add(staffJobRecordObject);
 
-                                            BinaryFormatter bfObject = new BinaryFormatter();
-
-                                            FileStream file = File.Create(staffJobRecordsFileName);
-
-                                            bfObject.Serialize(file, staffJobRecordList);
-
-                                            file.Close();
+                                            loadAndSaveStaffJobRecordDataToList(staffJobRecordsFileName, staffJobRecordList, false);
 
                                             //If this is first time store Staff Job Records in file then run the below command
                                             //To load the data from the binary file to Staff List Object
                                             if (!staffJobRecordsFileNameExists)
                                             {
-                                                BinaryFormatter bf1 = new BinaryFormatter();
-
-                                                FileStream file1 = File.OpenRead(staffJobRecordsFileName);
-
-                                                staffJobRecordList = (List<StaffJobRecord>)bf1.Deserialize(file1);
-
-                                                file1.Close();
+                                                staffJobRecordList = loadAndSaveStaffJobRecordDataToList(staffJobRecordsFileName,
+                                                    staffJobRecordList, true);
                                             }
 
 
@@ -1573,12 +1657,7 @@ namespace Staff_Management_System
 
                                                 case 5:
 
-
-                                                    do
-                                                    {
-                                                        updatedAddress = validator.validateStringInput("Enter updated Address: ");
-
-                                                    } while (new EmailAddressAttribute().IsValid(updatedAddress) == false);
+                                                    updatedAddress = validator.validateEmailAddress("Enter updated Address: ");
 
                                                     staffListObjects[staffObjectIndexNumber_7].setAddress(updatedAddress);
 
@@ -1734,7 +1813,7 @@ namespace Staff_Management_System
                                         if (readLoginDetails(loginDetailsFileName, username, password).Item1)
                                         {
 
-                                            OverrideOrCreateLoginFile(validator, loginDetailsFileName);
+                                            OverrideConfigurationFile(validator, loginDetailsFileName);
 
                                         }
                                         else
@@ -1787,7 +1866,7 @@ namespace Staff_Management_System
 
             }
 
-            else if(initialOption != 0)
+            else if (initialOption != 0)
             {
                 Console.WriteLine("\nSorry, Invalid Input!");
             }
