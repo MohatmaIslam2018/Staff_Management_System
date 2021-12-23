@@ -386,6 +386,11 @@ namespace Staff_Management_System
     class Validator
     {
         //A function to validate Integer value
+
+        /*
+         * This function below have be adapted/reused from this book
+         * C# Programming Yellow Book (9th edition), Rob Miles.
+         */
         public int validateIntegerInput(string userInput)
         {
             Console.Write(userInput);
@@ -507,11 +512,15 @@ namespace Staff_Management_System
                 {
                     Console.WriteLine("This field cannot be empty....");
                 }
+
                 else if (new EmailAddressAttribute().IsValid(emailString) == false)
                 {
                     Console.WriteLine("Please enter a valid Email Address....");
                 }
 
+                /* new EmailAddressAttribute().IsValid(emailString) is reused from the website below
+                 * https://stackoverflow.com/questions/1365407/c-sharp-code-to-validate-email-address
+                 */
             } while (emailString == "" || new EmailAddressAttribute().IsValid(emailString) == false);
 
             return emailString;
@@ -548,7 +557,6 @@ namespace Staff_Management_System
         }
 
         //A function to validate National Insurance Number with regex pattern
-
         public string validateNationalInsuranceNumber(string stringInput)
         {
             string regPattern = @"^\s*[A-Z]{2}(?:\s*\d\s*){6}[A-Z]?\s*$";
@@ -578,7 +586,6 @@ namespace Staff_Management_System
 
 
         }
-
 
 
     }
@@ -885,7 +892,7 @@ namespace Staff_Management_System
             Validator validator = new Validator();
 
             //A variable to store configurationFile
-            string configurationFileName = "configurationFile.txt";
+            const string configurationFileName = "configurationFile.txt";
 
 
             Console.WriteLine("***** Welcome to Saloon Booking Management System *****");
@@ -912,9 +919,9 @@ namespace Staff_Management_System
                     List<string> serviceTypeKeysList = new List<string>(serviceDictionary.Keys);
 
                     //Declaring Filenames for the customer and booking data
-                    string bookingRecordsFileName = "bookingRecords.dat";
-                    string customerRecordFileName = "customerDetails.dat";
-                    string serviceFilename = "serviceData.dat";
+                    const string bookingRecordsFileName = "bookingRecords.dat";
+                    const string customerRecordFileName = "customerDetails.dat";
+                    const string serviceFilename = "serviceData.dat";
 
                     //Declaring boolean variables to check if the file exits
                     bool customerDetailsFileNameExists = false;
@@ -1021,7 +1028,7 @@ namespace Staff_Management_System
 
                             case 3:
                                 //Create new Customer Booking
-                                string serviceCompleted = "Not Complete";
+                                const string serviceCompleted = "Not Complete";
 
                                 //If customer data exits in file then make a new booking
                                 Console.WriteLine("\nEnter Register Customer Details to book an appointment...\n");
@@ -1056,6 +1063,7 @@ namespace Staff_Management_System
                                     int itemsSelected = 0;
 
                                     string[] services = new string[serviceTypeKeysList.Count];
+
 
                                     do
                                     {
@@ -1125,6 +1133,10 @@ namespace Staff_Management_System
                                 {
                                     Console.WriteLine("\nDisplaying the nearest Booking appoinments...\n");
 
+                                    /*
+                                     * The below line have been adapted/reused from this website for sorting Booking List value in Asending Order
+                                     * https://csharp.net-tutorials.com/linq/sorting-data-the-orderby-thenby-methods/
+                                     */
                                     List<Booking> bookings = bookingList.OrderBy(Lastestdate => Lastestdate.getBookingDate()).ToList();
 
                                     foreach (Booking booking in bookings)
@@ -1149,6 +1161,10 @@ namespace Staff_Management_System
                                 DateTime firstDate = DateTime.Parse(tempFirstDate);
                                 DateTime secondDate = DateTime.Parse(tempSecondDate);
 
+
+                                /* The below line have been adapted/reused from this website for data range of Booking
+                                 * https://stackoverflow.com/questions/58377344/searching-objects-from-c-sharp-list-between-date-range-performance-oriented
+                                 */
                                 List<Booking> findCusomerBookingRecord = bookingList.Where(
                                     find => find.getBookingDate() >= firstDate && find.getBookingDate() <= secondDate).ToList();
 
@@ -1225,7 +1241,7 @@ namespace Staff_Management_System
                                 double servicePrice = validator.validateDoubleInput("Enter Price: ");
 
                                 serviceDictionary[serviceType] = servicePrice;
-                                
+
                                 //Save the dictionary and list value to the file
                                 loadAndSaveServiceDataToDictionaryAndList(serviceFilename, serviceDictionary, serviceTypeKeysList, false);
 
@@ -1335,9 +1351,9 @@ namespace Staff_Management_System
                     string password;
                     int attempts = 0;
                     int maxAttempts = 0;
-                    string staffDetailsFileName = "staffDetails.dat";
+                    const string staffDetailsFileName = "staffDetails.dat";
                     bool staffDetailsFileNameExists = false;
-                    string staffJobRecordsFileName = "staffJobRecords.dat";
+                    const string staffJobRecordsFileName = "staffJobRecords.dat";
                     bool staffJobRecordsFileNameExists = false;
 
                     //Declaring Staff List and Staff Job List to store Staff Class and Staff Job Class
@@ -1475,7 +1491,7 @@ namespace Staff_Management_System
 
                                                 Console.WriteLine();
 
-                                                foreach(Staff staff in staffList)
+                                                foreach (Staff staff in staffList)
                                                 {
                                                     Console.WriteLine(staff.displayStaffRecords());
                                                 }
@@ -1488,7 +1504,7 @@ namespace Staff_Management_System
                                             break;
 
                                         case 3:
-                                            
+
                                             //Making a Shift for a Staff using staff Details
                                             Console.WriteLine("\nEnter registered Staff Details to book a Job Shift...\n");
 
@@ -1523,7 +1539,7 @@ namespace Staff_Management_System
                                                 Console.WriteLine("Total payment made to staff: " + totalPayment);
 
                                                 //Storing Staff Job details in StaffJobRecord class
-                                                staffJobRecordObject.setJobRecord(identifyStaffFirstName_3, identifyStaffLastName_3, 
+                                                staffJobRecordObject.setJobRecord(identifyStaffFirstName_3, identifyStaffLastName_3,
                                                     identifyStaffDob_3, jobDescribtion, workDate, hoursWorked, hourlyPay, totalPayment);
 
                                                 //Storing StaffJobRecord class into StaffJobRecord List
@@ -1557,10 +1573,9 @@ namespace Staff_Management_System
 
                                             if (staffJobRecordList.Count > 0)
                                             {
-                                                Console.WriteLine("\nDisplaying Job Record in desending order according to payments made....\n");
+                                                Console.WriteLine("\nDisplaying Jobs performed by staffs and payments made to them....\n");
 
-                                                List<StaffJobRecord> staffs = staffJobRecordList.OrderByDescending(payment => payment.getPayment()).ToList();
-                                                foreach (StaffJobRecord staff in staffs)
+                                                foreach (StaffJobRecord staff in staffJobRecordList)
                                                 {
                                                     Console.WriteLine(staff.displayStaffWeekyJobRecords());
                                                 }
@@ -1629,6 +1644,9 @@ namespace Staff_Management_System
                                                 DateTime firstDate = DateTime.Parse(tempFirstDate);
                                                 DateTime secondDate = DateTime.Parse(tempSecondDate);
 
+                                                /* The below line have been adapted/reused from this website for data range of Staff work dates
+                                                 * https://stackoverflow.com/questions/58377344/searching-objects-from-c-sharp-list-between-date-range-performance-oriented
+                                                 */
                                                 List<StaffJobRecord> findStaffRecord = staffJobRecordList.Where(
                                                     find => find.getWorkDate() >= firstDate && find.getWorkDate() <= secondDate).ToList();
 
@@ -1906,7 +1924,7 @@ namespace Staff_Management_System
 
                                     System.Environment.Exit(0);
 
-                                    
+
                                 }
                             }
 
